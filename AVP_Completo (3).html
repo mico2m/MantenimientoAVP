@@ -1,0 +1,2588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d3a6e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AVP">
+<title>AVP — Mantenimiento Preventivo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+/* ══ GLOBAL ══ */
+
+:root {
+  --bg:        #eef2f8;
+  --surface:   #ffffff;
+  --surface2:  #f0f4fa;
+  --border:    #c8d4e3;
+  --accent:    #0d3a6e;
+  --accent-lg: #1a5fa8;
+  --text:      #0d1f35;
+  --text2:     #2c4a6e;
+  --muted:     #5a7a99;
+  --shadow:    0 1px 4px rgba(13,58,110,.10);
+  --shadow-md: 0 4px 14px rgba(13,58,110,.15);
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #0d3a6e 0%, #1a5fa8 100%);
+  padding: 32px 20px 28px;
+  text-align: center;
+}
+.header-logo {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 6px;
+}
+.logo-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.header-title {
+  font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -.01em;
+}
+.header-title span { color: #a8d4ff; }
+.header-sub {
+  font-size: 11px; color: rgba(255,255,255,.6);
+  letter-spacing: .1em; text-transform: uppercase; margin-top: 2px;
+}
+.header-date {
+  margin-top: 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.12); border-radius: 20px;
+  padding: 5px 14px; font-size: 12px; color: rgba(255,255,255,.8);
+}
+
+/* TECHNICIAN */
+.tech-wrap {
+  margin: 16px 16px 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.tech-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.tech-input {
+  width: 100%; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: Arial, sans-serif; font-size: 14px;
+  padding: 10px 12px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.tech-input:focus {
+  border-color: var(--accent-lg);
+  box-shadow: 0 0 0 3px rgba(26,95,168,.15);
+}
+
+/* SECTION */
+.section-title {
+  padding: 20px 16px 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* CARDS */
+.cards { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .15s, transform .1s;
+  text-decoration: none; display: block;
+}
+.card:active { transform: scale(.98); box-shadow: var(--shadow-md); }
+
+.card-inner {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+}
+.card-icon {
+  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.card-icon.blue  { background: linear-gradient(135deg,#0d3a6e,#1a5fa8); }
+.card-icon.green { background: linear-gradient(135deg,#15803d,#22c55e); }
+.card-icon.amber { background: linear-gradient(135deg,#92400e,#f59e0b); }
+.card-icon.slate { background: linear-gradient(135deg,#334155,#64748b); }
+
+.card-info { flex: 1; }
+.card-name {
+  font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px;
+}
+.card-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.card-arrow { font-size: 18px; color: var(--muted); }
+
+.card-bar {
+  height: 4px;
+}
+.card-bar.blue  { background: linear-gradient(90deg,#0d3a6e,#1a5fa8); }
+.card-bar.green { background: linear-gradient(90deg,#15803d,#22c55e); }
+.card-bar.amber { background: linear-gradient(90deg,#92400e,#f59e0b); }
+.card-bar.slate { background: linear-gradient(90deg,#334155,#64748b); }
+
+.card-soon {
+  opacity: .55; cursor: default; pointer-events: none;
+}
+.card-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); padding: 2px 7px; border-radius: 8px;
+  margin-top: 4px; display: inline-block;
+}
+
+.footer {
+  padding: 28px 16px 40px; text-align: center;
+  font-size: 10px; color: var(--muted); letter-spacing: .07em;
+}
+
+
+/* ══ APP PAGES ══ */
+.app-page { display: none; }
+.app-page.active { display: block; }
+
+/* ══ ELECTRÓGENOS ══ */
+
+:root {
+  --bg:        #eef2f8;
+  --surface:   #ffffff;
+  --surface2:  #f0f4fa;
+  --border:    #c8d4e3;
+  --border2:   #a0b4cc;
+  --accent:    #15803d;
+  --accent-lg: #16a34a;
+  --accent-fg: #ffffff;
+  --ok:        #15803d;
+  --ok-bg:     #dcfce7;
+  --alerta:    #dc2626;
+  --alerta-bg: #fee2e2;
+  --warn:      #d97706;
+  --warn-bg:   #fef3c7;
+  --text:      #0d1f35;
+  --text2:     #2c4a6e;
+  --muted:     #5a7a99;
+  --shadow:    0 1px 4px rgba(13,58,110,.10);
+  --shadow-md: 0 4px 14px rgba(13,58,110,.15);
+  --radius:    8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh; font-size: 14px; line-height: 1.5;
+}
+
+/* TABS */
+.tabs {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex;
+  background: linear-gradient(135deg, #14532d 0%, #16a34a 100%);
+  box-shadow: 0 2px 12px rgba(20,83,45,.35);
+}
+.tab {
+  flex: 1; padding: 14px 4px; text-align: center;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(255,255,255,.55); cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all .2s;
+}
+.tab.active { color: #fff; border-bottom-color: #fff; }
+
+/* SCREENS */
+.screen { display: none; padding: 56px 0 52px; }
+.screen.active { display: block; }
+
+/* PAGE HEADER */
+.page-header {
+  padding: 16px 16px 14px;
+  background: linear-gradient(135deg, #14532d 0%, #16a34a 100%);
+}
+.back-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: rgba(255,255,255,.7); font-size: 11px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+  cursor: pointer; margin-bottom: 8px; text-decoration: none;
+}
+.back-btn:active { color: #fff; }
+.logo {
+  font-size: 18px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 8px; line-height: 1.2;
+}
+.logo span { color: #bbf7d0; }
+.page-sub { font-size: 10px; color: rgba(255,255,255,.6); letter-spacing: .07em; text-transform: uppercase; margin-top: 3px; }
+
+/* FORM */
+.form-wrap { padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f-label { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+input, select, textarea {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: Arial, Helvetica, sans-serif; font-size: 13px;
+  padding: 9px 11px; outline: none;
+  transition: border-color .15s, box-shadow .15s; -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-lg); box-shadow: 0 0 0 3px rgba(22,163,74,.15);
+}
+input[readonly] { background: var(--surface2); color: var(--muted); cursor: default; }
+select option { background: #fff; color: var(--text); }
+
+/* STATS */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.stat-cell { padding: 11px 6px; text-align: center; border-right: 1px solid var(--border); }
+.stat-cell:last-child { border-right: none; }
+.stat-n { font-size: 22px; font-weight: 700; line-height: 1; }
+.stat-n.green { color: var(--ok); }
+.stat-n.red   { color: var(--alerta); }
+.stat-n.amber { color: var(--warn); }
+.stat-l { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+/* BARRIO CARD */
+.barrio-wrap { margin: 10px 14px; }
+.barrio-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 12px;
+}
+.barrio-head {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s;
+}
+.barrio-head:active { background: var(--surface2); }
+.barrio-name { font-size: 15px; font-weight: 700; color: var(--text2); flex: 1; }
+.barrio-status {
+  font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 10px;
+}
+.barrio-status.ok      { background: var(--ok-bg);    color: var(--ok); }
+.barrio-status.alerta  { background: var(--alerta-bg); color: var(--alerta); }
+.barrio-status.parcial { background: var(--warn-bg);   color: var(--warn); }
+.barrio-status.vacio   { background: var(--surface2);  color: var(--muted); }
+
+.barrio-body { padding: 14px; }
+
+/* CHECKLIST GRID */
+.check-legend {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;
+  margin-bottom: 12px; padding: 10px 12px;
+  background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border);
+}
+.legend-item { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.legend-dot {
+  width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  background: linear-gradient(135deg,#14532d,#16a34a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: #fff;
+}
+
+/* CHECK ITEMS */
+.check-section { margin-bottom: 14px; }
+.check-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.check-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.check-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius);
+  background: var(--surface2); border: 1.5px solid var(--border);
+  margin-bottom: 6px; transition: border-color .15s;
+}
+.check-row.checked { border-color: var(--accent); background: var(--ok-bg); }
+.check-row.alerta  { border-color: var(--alerta); background: var(--alerta-bg); }
+
+.check-letter {
+  width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0;
+  background: linear-gradient(135deg,#14532d,#16a34a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.check-desc { flex: 1; font-size: 12px; color: var(--text2); font-weight: 600; }
+.check-control { flex-shrink: 0; }
+
+/* Toggle OK/Falla */
+.toggle-wrap { display: flex; gap: 5px; }
+.toggle-btn {
+  padding: 5px 10px; border-radius: 6px; border: 1.5px solid var(--border);
+  font-size: 11px; font-weight: 700; cursor: pointer; background: var(--surface);
+  color: var(--muted); transition: all .12s; font-family: Arial, sans-serif;
+}
+.toggle-btn.active-ok    { background: var(--ok-bg);    border-color: var(--ok);    color: var(--ok); }
+.toggle-btn.active-falla { background: var(--alerta-bg); border-color: var(--alerta); color: var(--alerta); }
+
+/* Combustible select */
+.comb-select {
+  padding: 5px 8px; font-size: 12px; width: auto; min-width: 80px;
+}
+
+/* Observacion */
+.obs-toggle {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); transition: color .15s;
+}
+.obs-toggle:hover { color: var(--accent); }
+.obs-panel { display: none; margin-top: 8px; }
+.obs-panel.open { display: block; }
+textarea { resize: vertical; min-height: 60px; }
+
+/* BUTTONS */
+.btn-bar { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.btn {
+  width: 100%; padding: 13px 16px; border-radius: var(--radius);
+  border: none; cursor: pointer; font-family: Arial, sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  transition: all .15s; text-align: center;
+}
+.btn-primary { background: linear-gradient(135deg,#14532d,#16a34a); color: #fff; box-shadow: var(--shadow); }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn-ghost   { background: transparent; color: var(--muted);  border: 1.5px solid var(--border); }
+
+/* PANEL */
+.panel-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 14px 16px; }
+.pstat { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 10px; text-align: center; box-shadow: var(--shadow); }
+.pstat-n { font-size: 28px; font-weight: 700; line-height: 1; }
+.pstat-n.g { color: var(--ok); } .pstat-n.r { color: var(--alerta); } .pstat-n.a { color: var(--warn); }
+.pstat-l { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.section-label { padding: 10px 16px 6px; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.hist-card { margin: 10px 16px 0; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; box-shadow: var(--shadow); }
+.hist-top { display: flex; align-items: center; justify-content: space-between; }
+.hist-name { font-weight: 700; font-size: 14px; }
+.hist-chip { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+.hist-chip.f { background: var(--alerta-bg); color: var(--alerta); }
+.hist-chip.o { background: var(--ok-bg);    color: var(--ok); }
+.hist-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.hist-detail { font-size: 11px; color: var(--alerta); margin-top: 6px; line-height: 1.5; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: var(--accent); color: #fff;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; z-index: 500;
+  transition: transform .3s, opacity .3s; opacity: 0;
+  white-space: nowrap; letter-spacing: .03em; box-shadow: var(--shadow-md);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+
+/* ══ LUMINARIAS ══ */
+
+:root {
+  --bg:        #eef2f8;
+  --surface:   #ffffff;
+  --surface2:  #f0f4fa;
+  --border:    #c8d4e3;
+  --border2:   #a0b4cc;
+  --accent:    #0d3a6e;
+  --accent-lg: #1a5fa8;
+  --accent-fg: #ffffff;
+  --accent2:   #1a56db;
+  --ok:        #15803d;
+  --ok-bg:     #dcfce7;
+  --falla:     #dc2626;
+  --falla-bg:  #fee2e2;
+  --text:      #0d1f35;
+  --text2:     #2c4a6e;
+  --muted:     #5a7a99;
+  --muted2:    #8aaabf;
+  --shadow:    0 1px 4px rgba(13,58,110,.10);
+  --shadow-md: 0 4px 14px rgba(13,58,110,.15);
+  --radius:    8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ══════ TABS ══════ */
+.tabs {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex;
+  background: linear-gradient(135deg, #0d3a6e 0%, #1a5fa8 100%);
+  box-shadow: 0 2px 12px rgba(13,58,110,.35);
+}
+.tab {
+  flex: 1; padding: 14px 4px; text-align: center;
+  font-family: Arial, sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(255,255,255,.55); cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+}
+.tab.active { color: #fff; border-bottom-color: #fff; }
+
+/* ══════ SCREENS ══════ */
+.screen { display: none; padding: 56px 0 52px; }
+.screen.active { display: block; }
+
+/* ══════ PAGE HEADER ══════ */
+.page-header {
+  padding: 16px 16px 14px;
+  background: linear-gradient(135deg, #0d3a6e 0%, #1a5fa8 100%);
+}
+.logo {
+  font-family: Arial, sans-serif; font-size: 18px; font-weight: 700;
+  color: #ffffff; display: flex; align-items: center; gap: 8px;
+  line-height: 1.2;
+}
+.logo-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #fff; display: inline-block; flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.25);
+}
+.logo span { color: #a8d4ff; }
+.page-sub {
+  font-size: 10px; color: rgba(255,255,255,.6);
+  letter-spacing: .07em; text-transform: uppercase; margin-top: 3px;
+}
+
+/* ══════ FORM ══════ */
+.form-wrap {
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+input, select, textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-lg);
+  box-shadow: 0 0 0 3px rgba(26,95,168,.15);
+}
+input[readonly] { background: var(--surface2); color: var(--muted); cursor: default; }
+select option { background: #fff; color: var(--text); }
+
+/* ══════ STATS BAR ══════ */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.stat-cell {
+  padding: 11px 6px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat-cell:last-child { border-right: none; }
+.stat-n {
+  font-family: Arial, sans-serif; font-size: 22px; font-weight: 700;
+  line-height: 1; letter-spacing: -.02em;
+}
+.stat-n.accent { color: var(--accent); }
+.stat-n.red    { color: var(--falla); }
+.stat-n.green  { color: var(--ok); }
+.stat-l {
+  font-size: 9px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted); margin-top: 3px;
+}
+
+/* ══════ ZONA ══════ */
+.zona-wrap { margin-top: 10px; }
+.zona-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px; cursor: pointer;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 56px; z-index: 9;
+  transition: background .12s;
+}
+.zona-header:active { background: var(--border); }
+.zona-pill {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #0d3a6e, #1a5fa8);
+  color: #fff; padding: 3px 9px; border-radius: 20px;
+}
+.zona-title { font-weight: 600; font-size: 12px; flex: 1; color: var(--text2); }
+.zona-falla-count { font-size: 11px; font-weight: 700; color: var(--falla); }
+.zona-chevron { font-size: 10px; color: var(--muted); transition: transform .2s; }
+.zona-chevron.open { transform: rotate(180deg); }
+.zona-body { display: none; }
+.zona-body.open { display: block; }
+
+/* ══════ TABLERO ══════ */
+.tablero {
+  margin: 10px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.tablero-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .12s;
+}
+.tablero-head:active { background: var(--surface2); }
+.tablero-id {
+  font-size: 14px; font-weight: 700;
+  color: var(--accent); flex: 1; letter-spacing: .02em;
+}
+.tablero-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  padding: 3px 9px; border-radius: 10px;
+}
+.tablero-badge.fallas { background: var(--falla-bg); color: var(--falla); }
+.tablero-badge.ok     { background: var(--ok-bg);    color: var(--ok);    }
+.tablero-body { padding: 12px 14px 14px; }
+
+/* ══════ CIRCUITO ══════ */
+.circ-wrap { margin-bottom: 12px; }
+.circ-wrap:last-of-type { margin-bottom: 0; }
+.circ-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+.circ-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.circ-num {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); padding: 1px 6px; border-radius: 4px; font-size: 10px;
+}
+
+/* ══════ LUMINARIAS ══════ */
+.lum-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.lum {
+  min-width: 40px; height: 34px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 6px; cursor: pointer;
+  font-family: Arial, sans-serif; font-size: 11px; font-weight: 600;
+  color: var(--text2); transition: all .1s;
+  user-select: none; position: relative;
+}
+.lum:active { transform: scale(.88); }
+.lum:hover { border-color: var(--border2); }
+.lum.falla {
+  background: var(--falla-bg); border-color: var(--falla);
+  color: var(--falla); font-weight: 700;
+}
+.lum.falla::after {
+  content: '✕';
+  position: absolute; top: -5px; right: -5px;
+  background: var(--falla); color: #fff;
+  width: 13px; height: 13px; border-radius: 50%;
+  font-size: 7px; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; line-height: 1;
+}
+
+/* ══════ OBS ══════ */
+.obs-row {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted); transition: color .15s;
+}
+.obs-row:hover { color: var(--accent); }
+.obs-panel { display: none; margin-top: 8px; }
+.obs-panel.open { display: block; }
+textarea { resize: vertical; min-height: 60px; }
+
+/* ══════ BUTTONS ══════ */
+.btn-bar { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.btn {
+  width: 100%; padding: 13px 16px; border-radius: var(--radius);
+  border: none; cursor: pointer;
+  font-family: Arial, sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  transition: all .15s; text-align: center;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #0d3a6e 0%, #1a5fa8 100%);
+  color: #fff; box-shadow: var(--shadow);
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:active { transform: translateY(0); filter: brightness(.96); }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-outline {
+  background: transparent; color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.btn-outline:hover { background: rgba(13,58,110,.06); }
+.btn-ghost {
+  background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text2); }
+
+/* ══════ PANEL ══════ */
+.panel-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; padding: 14px 16px;
+}
+.pstat {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 10px; text-align: center;
+  box-shadow: var(--shadow);
+}
+.pstat-n { font-size: 28px; font-weight: 700; line-height: 1; font-family: Arial, sans-serif; }
+.pstat-n.a { color: var(--accent); }
+.pstat-n.r { color: var(--falla); }
+.pstat-n.g { color: var(--ok); }
+.pstat-l { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+.section-label {
+  padding: 10px 16px 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.hist-card {
+  margin: 10px 16px 0;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 12px 14px; box-shadow: var(--shadow);
+}
+.hist-top { display: flex; align-items: center; justify-content: space-between; }
+.hist-name { font-weight: 700; font-size: 14px; }
+.hist-chip {
+  font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
+}
+.hist-chip.f { background: var(--falla-bg); color: var(--falla); }
+.hist-chip.o { background: var(--ok-bg);    color: var(--ok);    }
+.hist-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.hist-detail { font-size: 11px; color: var(--falla); margin-top: 6px; line-height: 1.5; }
+
+/* ══════ CONFIG ══════ */
+.config-block {
+  margin: 12px 16px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+}
+.config-block-head {
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #0d3a6e 0%, #1a5fa8 100%);
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: #fff;
+  display: flex; align-items: center; gap: 6px;
+}
+.config-block-body { padding: 14px; }
+.conf-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.conf-row input { flex: 1; }
+.btn-rm {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  color: var(--muted); border-radius: 6px; width: 36px; height: 40px;
+  cursor: pointer; font-size: 13px; flex-shrink: 0; transition: all .15s;
+}
+.btn-rm:hover { border-color: var(--falla); color: var(--falla); background: var(--falla-bg); }
+.btn-dashed {
+  width: 100%; background: transparent; border: 1.5px dashed var(--border2);
+  color: var(--muted); border-radius: var(--radius); padding: 9px;
+  cursor: pointer; font-family: Arial, sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; transition: all .15s;
+}
+.btn-dashed:hover { border-color: var(--accent); color: var(--accent); }
+.info-note {
+  background: rgba(26,86,219,.07);
+  border: 1px solid rgba(26,86,219,.2);
+  border-radius: var(--radius); padding: 12px;
+  font-size: 11px; color: var(--accent2); line-height: 1.8; margin-top: 10px;
+}
+.sheets-row { display: flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot.g { background: var(--ok); box-shadow: 0 0 5px var(--ok); }
+.dot.r { background: var(--falla); }
+
+/* ══════ MODAL ══════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 400;
+  padding: 20px; overflow-y: auto; align-items: flex-start; padding-top: 40px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  max-width: 580px; width: 100%; margin: 0 auto;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-md);
+}
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.modal-title { font-size: 15px; font-weight: 700; }
+.modal-close {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+}
+pre {
+  background: #0d1f35; border-radius: var(--radius); padding: 14px;
+  font-size: 10px; overflow-x: auto; white-space: pre-wrap;
+  color: #a8d4ff; line-height: 1.6; font-family: 'Courier New', monospace;
+}
+
+/* ══════ TOAST ══════ */
+.toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: var(--accent); color: #fff;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; z-index: 500;
+  transition: transform .3s, opacity .3s; opacity: 0;
+  white-space: nowrap; letter-spacing: .03em;
+  box-shadow: var(--shadow-md);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+  border-radius: 50%; animation: spin .6s linear infinite;
+  display: inline-block; vertical-align: middle; margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     HOME
+════════════════════════════════════ -->
+<div class="app-page active" id="app-home">
+
+
+<div class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🔧</div>
+    <div>
+      <div class="header-title">Mantenimiento <span>Preventivo</span></div>
+      <div class="header-sub">AVP — Sistema de control</div>
+    </div>
+  </div>
+  <div class="header-date" id="hdr-date">📅 —</div>
+</div>
+
+<div class="tech-wrap">
+  <div class="tech-label">👤 Técnico responsable</div>
+  <input class="tech-input" id="tecnico-home" type="text" placeholder="Ingresá tu nombre completo" autocomplete="name" />
+</div>
+
+<div class="section-title">Seleccioná el preventivo a realizar</div>
+
+<div class="cards">
+
+  <a class="card" onclick="irA('luminarias')">
+    <div class="card-bar blue"></div>
+    <div class="card-inner">
+      <div class="card-icon blue">🔦</div>
+      <div class="card-info">
+        <div class="card-name">Luminarias Públicas</div>
+        <div class="card-desc">Verificación de luminarias por zona, tablero y circuito. Registro de fallas y exportación PDF.</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <a class="card" onclick="irA('electrogenos')">
+    <div class="card-bar green"></div>
+    <div class="card-inner">
+      <div class="card-icon green">⚡</div>
+      <div class="card-info">
+        <div class="card-name">Grupos Electrógenos</div>
+        <div class="card-desc">Control de arranque, combustible, aceite, alimentación, batería y filtro por barrio.</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <a class="card" onclick="irA('emergencia')">
+    <div class="card-bar amber"></div>
+    <div class="card-inner">
+      <div class="card-icon amber">🚨</div>
+      <div class="card-info">
+        <div class="card-name">Luces de Emergencia</div>
+        <div class="card-desc">Verificación de equipos de emergencia por ubicación y sector.</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <div class="card card-soon">
+    <div class="card-bar slate"></div>
+    <div class="card-inner">
+      <div class="card-icon slate">📋</div>
+      <div class="card-info">
+        <div class="card-name">Otros preventivos</div>
+        <div class="card-desc">Próximamente disponibles.</div>
+        <div class="card-badge">Próximamente</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">AVP · Belén de Escobar · 2025</div>
+
+
+</div>
+
+<!-- ══════════════════════════════════
+     GRUPOS ELECTRÓGENOS
+════════════════════════════════════ -->
+<div class="app-page" id="app-electrogenos">
+<nav class="tabs">
+  <div class="tab active" onclick="GE_showTab('recorrida')">⚡ Control</div>
+  <div class="tab" onclick="GE_showTab('panel')">📊 Panel</div>
+</nav>
+
+<!-- CONTROL -->
+<div class="screen active" id="ge-screen-recorrida">
+  <div class="page-header">
+    <a class="back-btn" href="#" onclick="navegarA('home')">← Volver al inicio</a>
+    <div class="logo"><span>⚡</span> Grupos <span>Electrógenos</span></div>
+    <div class="page-sub">Control preventivo por barrio</div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="form-grid">
+      <div>
+        <div class="f-label">Técnico</div>
+        <input type="text" id="ge-tecnico" placeholder="Nombre completo" />
+      </div>
+      <div>
+        <div class="f-label">Fecha</div>
+        <input type="text" id="ge-fecha-display" readonly />
+      </div>
+      <div style="grid-column:1/-1">
+        <div class="f-label">Hora inicio</div>
+        <input type="text" id="ge-hora-inicio" readonly style="max-width:140px;" />
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><div class="stat-n green" id="ge-st-ok">0</div><div class="stat-l">OK</div></div>
+    <div class="stat-cell"><div class="stat-n red"   id="ge-st-fallas">0</div><div class="stat-l">Fallas</div></div>
+    <div class="stat-cell"><div class="stat-n amber" id="st-pend">0</div><div class="stat-l">Pendientes</div></div>
+  </div>
+
+  <div class="barrio-wrap" id="barrios-container"></div>
+
+  <div class="btn-bar">
+    <button class="btn btn-primary" id="ge-btn-enviar" onclick="GE_finalizarControl()">Finalizar y registrar control</button>
+    <button class="btn btn-outline" onclick="GE_exportarPDF()">📄 Exportar PDF</button>
+    <button class="btn btn-ghost" onclick="GE_resetControl()">↺ Nuevo control</button>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="screen" id="ge-screen-panel">
+  <div class="page-header">
+    <a class="back-btn" href="#" onclick="navegarA('home')">← Volver al inicio</a>
+    <div class="logo">📊 Panel <span>Control</span></div>
+    <div class="page-sub">Historial de controles</div>
+  </div>
+  <div class="panel-stats">
+    <div class="pstat"><div class="pstat-n a" id="ph-controles">0</div><div class="pstat-l">Controles</div></div>
+    <div class="pstat"><div class="pstat-n r" id="ge-ph-fallas">0</div><div class="pstat-l">Fallas</div></div>
+    <div class="pstat"><div class="pstat-n g" id="ge-ph-efic">—</div><div class="pstat-l">Estado gral.</div></div>
+  </div>
+  <div class="section-label">Controles recientes</div>
+  <div id="ge-hist-lista"></div>
+  <div class="btn-bar">
+    <button class="btn btn-primary" onclick="GE_exportarCSV()">⬇ Exportar CSV</button>
+  </div>
+</div>
+
+<div class="toast" id="ge-toast"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     LUMINARIAS PÚBLICAS
+════════════════════════════════════ -->
+<div class="app-page" id="app-luminarias">
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" onclick="LP_showTab('recorrida')">🔦 Recorrida</div>
+  <div class="tab" onclick="LP_showTab('panel')">📊 Panel</div>
+  <div class="tab" onclick="LP_showTab('config')">⚙️ Config</div>
+</nav>
+
+<!-- ══════════════════════════════════
+     RECORRIDA
+════════════════════════════════════ -->
+<div class="screen active" id="lp-screen-recorrida">
+  <div class="page-header">
+    <a href="#" onclick="navegarA('home')" style="display:inline-flex;align-items:center;gap:5px;color:rgba(255,255,255,.7);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;margin-bottom:8px;">← Volver al inicio</a>
+    <div class="logo"><span class="logo-dot"></span> Mantenimiento Preventivo <span>AVP</span></div>
+    <div class="page-sub">Verificación de luminarias públicas</div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="form-grid">
+      <div>
+        <div class="f-label">Técnico</div>
+        <input type="text" id="lp-tecnico" placeholder="Nombre completo" />
+      </div>
+      <div>
+        <div class="f-label">Fecha</div>
+        <input type="text" id="lp-fecha-display" readonly />
+      </div>
+      <div>
+        <div class="f-label">Zona</div>
+        <select id="zona-filter" onchange="filterZona()">
+          <option value="">Todas las zonas</option>
+        </select>
+      </div>
+      <div>
+        <div class="f-label">Hora inicio</div>
+        <input type="text" id="lp-hora-inicio" readonly />
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <div class="stat-n accent" id="st-total">0</div>
+      <div class="stat-l">Total</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n red" id="lp-st-fallas">0</div>
+      <div class="stat-l">Fallas</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n green" id="lp-st-ok">0</div>
+      <div class="stat-l">OK</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n accent" id="st-pct">—</div>
+      <div class="stat-l">Eficiencia</div>
+    </div>
+  </div>
+
+  <div class="zona-wrap" id="zonas-container"></div>
+
+  <div class="btn-bar">
+    <button class="btn btn-primary" id="lp-btn-enviar" onclick="enviarRecorrida()">
+      Finalizar y registrar recorrida
+    </button>
+    <button class="btn btn-outline" onclick="exportarPDF_recorrida()">📄 Exportar PDF de esta recorrida</button>
+    <button class="btn btn-ghost" onclick="resetRecorrida()">↺ Nueva recorrida</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANEL
+════════════════════════════════════ -->
+<div class="screen" id="lp-screen-panel">
+  <div class="page-header">
+    <div class="logo"><span class="logo-dot"></span> Panel <span>Control — AVP</span></div>
+    <div class="page-sub">Historial de recorridas</div>
+  </div>
+
+  <div class="panel-stats">
+    <div class="pstat">
+      <div class="pstat-n a" id="ph-recorridas">0</div>
+      <div class="pstat-l">Recorridas</div>
+    </div>
+    <div class="pstat">
+      <div class="pstat-n r" id="lp-ph-fallas">0</div>
+      <div class="pstat-l">Fallas</div>
+    </div>
+    <div class="pstat">
+      <div class="pstat-n g" id="lp-ph-efic">—</div>
+      <div class="pstat-l">Eficiencia</div>
+    </div>
+  </div>
+
+  <div class="section-label">Recorridas recientes</div>
+  <div id="lp-hist-lista"></div>
+
+  <div class="btn-bar">
+    <button class="btn btn-primary" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    <button class="btn btn-outline" onclick="exportarPDF_historial()">📄 Exportar PDF historial</button>
+    <button class="btn btn-ghost" onclick="abrirSheets()">↗ Abrir Google Sheets</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CONFIG
+════════════════════════════════════ -->
+<div class="screen" id="screen-config">
+  <div class="page-header">
+    <div class="logo"><span class="logo-dot"></span> Con<span>figuración</span></div>
+    <div class="page-sub">Zonas, tableros e integración</div>
+  </div>
+
+
+  <!-- PWA Install -->
+  <div class="config-block" id="pwa-block">
+    <div class="config-block-head">📲 Instalar como App</div>
+    <div class="config-block-body">
+      <div class="info-note">
+        Instalá AVP en tu Android como una app nativa: funciona sin navegador, con ícono propio y modo offline.<br><br>
+        <strong>Requisito:</strong> abrir este archivo desde un servidor web o desde Chrome con "Abrir con…"
+      </div>
+      <button class="btn btn-primary" id="btn-instalar-pwa" onclick="instalarPWA()" style="margin-top:12px;padding:12px;display:none;">
+        📲 Instalar en este dispositivo
+      </button>
+      <div class="sheets-row" style="margin-top:10px;">
+        <div class="dot g"></div>
+        <span style="font-size:11px;color:var(--muted);">También podés usar Chrome → Menú ⋮ → "Añadir a pantalla de inicio"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheets -->
+  <div class="config-block">
+    <div class="config-block-head">🔗 Google Sheets</div>
+    <div class="config-block-body">
+      <div class="f-label" style="margin-bottom:6px">URL del Web App</div>
+      <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/.../exec" />
+      <button class="btn btn-primary" style="margin-top:10px;padding:11px;" onclick="guardarSheets()">Guardar URL</button>
+      <div class="sheets-row">
+        <div class="dot g" id="sheets-dot"></div>
+        <span id="sheets-msg">Conectado</span>
+      </div>
+      <div class="info-note">
+        URL preconfigurada para AVP. Podés cambiarla si necesitás apuntar a otra hoja.<br><br>
+        Para reconfigurar: Apps Script → Implementar → App web → Acceso "Cualquiera"
+      </div>
+      <button class="btn btn-ghost" style="margin-top:10px;padding:10px;font-size:12px;" onclick="verScript()">📄 Ver código del script</button>
+    </div>
+  </div>
+
+  <!-- Zonas -->
+  <div class="config-block">
+    <div class="config-block-head">🗺 Zonas y tableros</div>
+    <div class="config-block-body">
+      <div id="zonas-config"></div>
+      <button class="btn-dashed" onclick="addZonaConfig()">+ Agregar zona</button>
+      <button class="btn btn-primary" style="margin-top:14px;padding:12px;" onclick="guardarConfig()">💾 Guardar configuración</button>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- MODAL SCRIPT -->
+<div class="modal-overlay" id="modal-script">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Google Apps Script</span>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <pre id="script-txt"></pre>
+    <button class="btn btn-primary" style="margin-top:12px;padding:12px;" onclick="copiarScript()">Copiar código</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="lp-toast"></div>
+</div>
+
+<script>
+// ══════════════════════════════════
+// NAVEGACIÓN CENTRAL
+// ══════════════════════════════════
+const APPS = ['home','electrogenos','luminarias','emergencia'];
+
+function navegarA(app) {
+  APPS.forEach(id => {
+    const el = document.getElementById('app-' + id);
+    if (el) el.classList.toggle('active', id === app);
+  });
+  window.scrollTo(0, 0);
+  // Initialize app on first visit
+  if (app === 'electrogenos' && !GE._initialized) { GE.init(); GE._initialized = true; }
+  if (app === 'luminarias'   && !LP._initialized) { LP.init(); LP._initialized = true; }
+}
+
+// Fix home navigation
+
+// Set date
+const now = new Date();
+document.getElementById('hdr-date').textContent =
+  '📅 ' + now.toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+// Persist technician name across apps
+const TECH_KEY = 'avp_tecnico';
+const techInput = document.getElementById('tecnico-home');
+techInput.value = localStorage.getItem(TECH_KEY) || '';
+techInput.addEventListener('input', () => {
+  localStorage.setItem(TECH_KEY, techInput.value.trim());
+});
+
+function irA(modulo) {
+  const tec = techInput.value.trim();
+  if (!tec) {
+    techInput.focus();
+    techInput.style.borderColor = '#dc2626';
+    techInput.placeholder = '⚠ Ingresá tu nombre antes de continuar';
+    setTimeout(() => {
+      techInput.style.borderColor = '';
+      techInput.placeholder = 'Ingresá tu nombre completo';
+    }, 2000);
+    return;
+  }
+  navegarA(modulo);
+}
+
+
+// ══════════════════════════════════
+// GRUPOS ELECTRÓGENOS — namespace GE
+// ══════════════════════════════════
+const GE = (function() {
+  
+const BARRIOS = [
+  'VISTAS','MARINAS','CEIBOS','MUELLES','ACACIAS','ARAUCARIAS','COSTAS','RIBERAS','ACC. 25 PROV.','ACC. 26'
+];
+
+const CONTROLES = [
+  { id:'A', label:'Control de arranque',                tipo:'check' },
+  { id:'B', label:'Nivel de combustible',               tipo:'comb', opciones:['1','3/4','1/2','1/4','0'] },
+  { id:'C', label:'Control nivel de aceite',            tipo:'check' },
+  { id:'D', label:'Medición salida de alimentación',    tipo:'check' },
+  { id:'E', label:'Verificación carga de batería',      tipo:'check' },
+  { id:'F', label:'Limpieza filtro de aire',            tipo:'check' },
+];
+
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzXqtTb90NIITURxNwcrQ1jX4uaclMBsrRSTb6cdeV5uP8L4CE97S6_0fjvcN7BE5Pd-Q/exec';
+
+let S = { historial: [] };
+// estado[barrio][controlId] = 'ok' | 'falla' | valor-combustible | ''
+let estado = {};
+let obsBarrio = {};
+
+// ── INIT ──
+function init() {
+  const saved = localStorage.getItem('avp_electrogenos');
+  if (saved) { try { S = JSON.parse(saved); } catch(e){} }
+
+  // Pre-fill technician from home
+  const tec = localStorage.getItem('avp_tecnico') || '';
+  document.getElementById('ge-tecnico').value = tec;
+
+  const now = new Date();
+  document.getElementById('ge-fecha-display').value =
+    now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('ge-hora-inicio').value =
+    now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+
+  resetEstado();
+  renderBarrios();
+  renderPanel();
+}
+
+function save() { localStorage.setItem('avp_electrogenos', JSON.stringify(S)); }
+
+function resetEstado() {
+  estado = {};
+  obsBarrio = {};
+  BARRIOS.forEach(b => {
+    estado[b] = {};
+    CONTROLES.forEach(c => { estado[b][c.id] = ''; });
+  });
+}
+
+// ── TABS ──
+function showTab(t) {
+  ['recorrida','panel'].forEach((id,i) => {
+    document.getElementById('ge-screen-'+id).classList.toggle('active', id===t);
+    document.querySelectorAll('#app-electrogenos .tab')[i].classList.toggle('active', id===t);
+  });
+  if (t==='panel') renderPanel();
+}
+
+// ── RENDER ──
+function renderBarrios() {
+  const container = document.getElementById('barrios-container');
+  container.innerHTML = '';
+  BARRIOS.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'barrio-card';
+    card.id = `card_${b.replace(/\s/g,'_')}`;
+    card.innerHTML = `
+      <div class="barrio-head" onclick="toggleBarrio('body_${b.replace(/\s/g,'_')}')">
+        <div class="barrio-name">${b}</div>
+        <div class="barrio-status vacio" id="status_${b.replace(/\s/g,'_')}">Sin completar</div>
+        <span style="color:var(--muted);font-size:10px;margin-left:4px;">▼</span>
+      </div>
+      <div class="barrio-body" id="body_${b.replace(/\s/g,'_')}" style="display:none;">
+        ${renderControlesHTML(b)}
+        <div class="obs-toggle" onclick="GE_toggleObs('obs_${b.replace(/\s/g,'_')}')">
+          📝 <span>Observación</span>
+        </div>
+        <div class="obs-panel" id="obs_${b.replace(/\s/g,'_')}">
+          <textarea placeholder="Ej: Pérdida de aceite, filtro muy sucio..."
+            onchange="GE_setObs('${b}',this.value)"></textarea>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+  updateStats();
+}
+
+function renderControlesHTML(barrio) {
+  return CONTROLES.map(c => {
+    const bid = barrio.replace(/\s/g,'_');
+    const val = estado[barrio][c.id];
+    if (c.tipo === 'comb') {
+      const opts = c.opciones.map(o =>
+        `<option value="${o}" ${val===o?'selected':''}>${o}</option>`
+      ).join('');
+      return `<div class="check-row" id="row_${bid}_${c.id}">
+        <div class="check-letter">${c.id}</div>
+        <div class="check-desc">${c.label}</div>
+        <div class="check-control">
+          <select class="comb-select" onchange="GE_setValor('${barrio}','${c.id}',this.value)">
+            <option value="">—</option>${opts}
+          </select>
+        </div>
+      </div>`;
+    } else {
+      return `<div class="check-row${val==='ok'?' checked':val==='falla'?' alerta':''}" id="row_${bid}_${c.id}">
+        <div class="check-letter">${c.id}</div>
+        <div class="check-desc">${c.label}</div>
+        <div class="check-control">
+          <div class="toggle-wrap">
+            <button class="toggle-btn${val==='ok'?' active-ok':''}" onclick="GE_setValor('${barrio}','${c.id}','ok')">✓ OK</button>
+            <button class="toggle-btn${val==='falla'?' active-falla':''}" onclick="GE_setValor('${barrio}','${c.id}','falla')">✕ Falla</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+
+function toggleBarrio(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display==='none'?'':'none';
+}
+function toggleObs(id) { document.getElementById(id)?.classList.toggle('open'); }
+function setObs(barrio, val) { obsBarrio[barrio] = val; }
+
+function setValor(barrio, controlId, val) {
+  estado[barrio][controlId] = val;
+  // Re-render just this row
+  const bid = barrio.replace(/\s/g,'_');
+  const row = document.getElementById(`row_${bid}_${controlId}`);
+  if (row) {
+    const c = CONTROLES.find(x=>x.id===controlId);
+    if (c && c.tipo !== 'comb') {
+      row.className = `check-row${val==='ok'?' checked':val==='falla'?' alerta':''}`;
+      const btns = row.querySelectorAll('.toggle-btn');
+      btns[0].className = `toggle-btn${val==='ok'?' active-ok':''}`;
+      btns[1].className = `toggle-btn${val==='falla'?' active-falla':''}`;
+    }
+  }
+  updateBarrioStatus(barrio);
+  updateStats();
+}
+
+function updateBarrioStatus(barrio) {
+  const bid = barrio.replace(/\s/g,'_');
+  const el = document.getElementById(`status_${bid}`);
+  if (!el) return;
+  const vals = Object.values(estado[barrio]);
+  const total = vals.length;
+  const completados = vals.filter(v=>v!=='').length;
+  const fallas = vals.filter(v=>v==='falla').length;
+
+  if (completados === 0) {
+    el.className = 'barrio-status vacio'; el.textContent = 'Sin completar';
+  } else if (fallas > 0) {
+    el.className = 'barrio-status alerta'; el.textContent = `${fallas} falla${fallas>1?'s':''}`;
+  } else if (completados < total) {
+    el.className = 'barrio-status parcial'; el.textContent = `${completados}/${total}`;
+  } else {
+    el.className = 'barrio-status ok'; el.textContent = '✓ OK';
+  }
+}
+
+function updateStats() {
+  let ok=0, fallas=0, pend=0;
+  BARRIOS.forEach(b => {
+    const vals = Object.values(estado[b]);
+    const comp = vals.filter(v=>v!=='').length;
+    const fall = vals.filter(v=>v==='falla').length;
+    if (comp === 0) { pend++; }
+    else if (fall > 0) { fallas++; }
+    else { ok++; }
+  });
+  document.getElementById('ge-st-ok').textContent = ok;
+  document.getElementById('ge-st-fallas').textContent = fallas;
+  document.getElementById('st-pend').textContent = pend;
+}
+
+// ── FINALIZAR ──
+async function finalizarControl() {
+  const tecnico = document.getElementById('ge-tecnico').value.trim();
+  if (!tecnico) { showToast('⚠ Ingresá el nombre del técnico'); return; }
+
+  const now = new Date();
+  // Build fallas list
+  const fallasList = [];
+  BARRIOS.forEach(b => {
+    CONTROLES.forEach(c => {
+      const v = estado[b][c.id];
+      if (v === 'falla') fallasList.push({barrio:b, control:c.id, detalle:c.label});
+    });
+  });
+
+  // Build resumen
+  const resumen = {};
+  BARRIOS.forEach(b => { resumen[b] = {...estado[b]}; });
+
+  const registro = {
+    id: Date.now(),
+    tipo: 'electrogenos',
+    tecnico, 
+    fecha: now.toLocaleDateString('es-AR'),
+    hora: now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+    totalBarrios: BARRIOS.length,
+    totalFallas: fallasList.length,
+    fallas: fallasList,
+    resumen,
+    observaciones: {...obsBarrio}
+  };
+
+  S.historial.unshift(registro); save();
+
+  const btn = document.getElementById('ge-btn-enviar');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando...';
+
+  try {
+    await fetch(SHEETS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(registro)
+    });
+    showToast('✅ Registrado correctamente');
+  } catch(e) {
+    showToast('⚠ Error de red — guardado local');
+  }
+
+  btn.disabled = false; btn.innerHTML = 'Finalizar y registrar control';
+  renderPanel();
+}
+
+function resetControl() {
+  if (!confirm('¿Iniciar nuevo control? Se borrarán los datos actuales.')) return;
+  resetEstado(); obsBarrio = {};
+  document.getElementById('ge-tecnico').value = localStorage.getItem('avp_tecnico') || '';
+  const now = new Date();
+  document.getElementById('ge-hora-inicio').value = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  renderBarrios();
+  showToast('Nuevo control iniciado');
+}
+
+// ── PANEL ──
+function renderPanel() {
+  const totalF = S.historial.reduce((a,r)=>a+r.totalFallas,0);
+  document.getElementById('ph-controles').textContent = S.historial.length;
+  document.getElementById('ge-ph-fallas').textContent = totalF;
+  document.getElementById('ge-ph-efic').textContent = S.historial.length ?
+    (totalF === 0 ? '✓ OK' : `${totalF} fallas`) : '—';
+
+  const lista = document.getElementById('ge-hist-lista');
+  if (!S.historial.length) {
+    lista.innerHTML = '<div style="padding:24px 16px;text-align:center;color:var(--muted);font-size:12px;">Sin registros aún.</div>';
+    return;
+  }
+  lista.innerHTML = S.historial.slice(0,15).map(r => {
+    const det = r.fallas.map(f=>`${f.barrio} (${f.control})`).join(' · ');
+    return `<div class="hist-card">
+      <div class="hist-top">
+        <div class="hist-name">${r.tecnico}</div>
+        <div class="hist-chip ${r.totalFallas>0?'f':'o'}">${r.totalFallas>0?r.totalFallas+' fallas':'sin fallas'}</div>
+      </div>
+      <div class="hist-meta">${r.fecha} ${r.hora}</div>
+      ${r.totalFallas>0?`<div class="hist-detail">↳ ${det}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── CSV ──
+function exportarCSV() {
+  if (!S.historial.length) { showToast('Sin registros'); return; }
+  let csv = 'ID,Fecha,Hora,Tecnico,Barrio,Control,Detalle,Valor\n';
+  S.historial.forEach(r => {
+    BARRIOS.forEach(b => {
+      CONTROLES.forEach(c => {
+        const v = r.resumen?.[b]?.[c.id] ?? '';
+        csv += `"${r.id}","${r.fecha}","${r.hora}","${r.tecnico}","${b}","${c.id}","${c.label}","${v}"\n`;
+      });
+    });
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `avp_electrogenos_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('✅ CSV exportado');
+}
+
+// ── PDF ──
+function exportarPDF() {
+  const tecnico = document.getElementById('ge-tecnico').value.trim();
+  if (!tecnico) { showToast('⚠ Ingresá el nombre del técnico'); return; }
+
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const PW=210, PH=297, ML=15, MR=15, CW=PW-ML-MR;
+
+  // Header
+  doc.setFillColor(20,83,45); doc.rect(0,0,PW,22,'F');
+  doc.setFillColor(22,163,74); doc.rect(PW/2,0,PW/2,22,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+  doc.text('MANTENIMIENTO PREVENTIVO AVP', ML, 10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(187,247,208);
+  doc.text('CONTROL DE GRUPOS ELECTRÓGENOS', ML, 17);
+
+  // Info strip
+  doc.setFillColor(240,244,250); doc.rect(0,22,PW,20,'F');
+  doc.setDrawColor(200,212,227); doc.line(0,42,PW,42);
+  const now = new Date();
+  const campos = [
+    ['TÉCNICO', tecnico],
+    ['FECHA', now.toLocaleDateString('es-AR')],
+    ['HORA', now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})],
+  ];
+  campos.forEach((c,i) => {
+    const x = ML + i*(CW/3);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(90,122,153);
+    doc.text(c[0], x, 28);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(13,31,53);
+    doc.text(c[1], x, 35);
+  });
+
+  // Legend
+  let y = 50;
+  doc.setFillColor(240,244,250); doc.rect(ML,y,CW,7,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(20,83,45);
+  doc.text('A=Arranque  B=Combustible  C=Aceite  D=Alimentación  E=Batería  F=Filtro', ML+3, y+5);
+  y += 10;
+
+  // Table
+  const head = [['BARRIO', 'A', 'B', 'C', 'D', 'E', 'F', 'OBSERVACIONES']];
+  const body = BARRIOS.map(b => {
+    const row = [b];
+    CONTROLES.forEach(c => {
+      const v = estado[b][c.id];
+      row.push(v === 'ok' ? 'OK' : v === 'falla' ? 'X' : v || '-');
+    });
+    row.push(obsBarrio[b] || '');
+    return row;
+  });
+
+  doc.autoTable({
+    startY: y, margin: {left:ML, right:MR},
+    head, body,
+    styles: { font:'helvetica', fontSize:8, fillColor:[255,255,255], textColor:[13,31,53], lineColor:[200,212,227], lineWidth:.3 },
+    headStyles: { fillColor:[20,83,45], textColor:[255,255,255], fontStyle:'bold', fontSize:7 },
+    alternateRowStyles: { fillColor:[240,244,250] },
+    columnStyles: {
+      0:{cellWidth:30, fontStyle:'bold'},
+      1:{cellWidth:10,halign:'center'},2:{cellWidth:12,halign:'center'},
+      3:{cellWidth:10,halign:'center'},4:{cellWidth:10,halign:'center'},
+      5:{cellWidth:10,halign:'center'},6:{cellWidth:10,halign:'center'},
+      7:{cellWidth:'auto'}
+    },
+    didParseCell: (data) => {
+      if (data.cell.text[0] === 'X')  { data.cell.styles.textColor = [220,38,38]; data.cell.styles.fontStyle = 'bold'; }
+      if (data.cell.text[0] === 'OK') { data.cell.styles.textColor = [21,128,61];  data.cell.styles.fontStyle = 'bold'; }
+      if (data.cell.text[0] === '-')  { data.cell.styles.textColor = [160,180,200]; }
+    }
+  });
+
+  // Footer
+  const pages = doc.getNumberOfPages();
+  for (let i=1;i<=pages;i++) {
+    doc.setPage(i);
+    doc.setFillColor(20,83,45); doc.rect(0,PH-10,PW,10,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(187,247,208);
+    doc.text('Mantenimiento Preventivo AVP — Control de Grupos Electrógenos', ML, PH-4);
+    doc.text(`Pag. ${i} / ${pages}`, PW-MR, PH-4, {align:'right'});
+  }
+
+  doc.save(`avp_electrogenos_${now.toISOString().slice(0,10)}.pdf`);
+  showToast('✅ PDF generado');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('ge-toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+  window.toggleBarrio = typeof toggleBarrio !== 'undefined' ? toggleBarrio : null;
+  window.GE_toggleObs  = typeof toggleObs  !== 'undefined' ? toggleObs  : null;
+  window.GE_setValor   = typeof setValor   !== 'undefined' ? setValor   : null;
+  window.GE_setObs     = typeof setObs     !== 'undefined' ? setObs     : null;
+
+  window.toggleObs = typeof toggleObs !== 'undefined' ? toggleObs : null;
+  window.setValor = typeof setValor !== 'undefined' ? setValor : null;
+  window.setObs = typeof setObs !== 'undefined' ? setObs : null;
+  window.updateBarrioStatus = typeof updateBarrioStatus !== 'undefined' ? updateBarrioStatus : null;
+  window.GE_resetControl = typeof resetControl !== 'undefined' ? resetControl : null;
+  window.GE_finalizarControl = typeof finalizarControl !== 'undefined' ? finalizarControl : null;
+  window.GE_exportarPDF = typeof exportarPDF !== 'undefined' ? exportarPDF : null;
+  window.GE_setValor = typeof setValor !== 'undefined' ? setValor : null;
+  window.GE_setObs = typeof setObs !== 'undefined' ? setObs : null;
+  window.GE_toggleBarrio = typeof toggleBarrio !== 'undefined' ? toggleBarrio : null;
+  window.GE_toggleObs = typeof toggleObs !== 'undefined' ? toggleObs : null;
+  window.GE_exportarCSV = typeof exportarCSV !== 'undefined' ? exportarCSV : null;
+window.addEventListener('load', init);
+
+  return { init, _initialized: false };
+})();
+
+// ══════════════════════════════════
+// LUMINARIAS PÚBLICAS — namespace LP
+// ══════════════════════════════════
+const LP = (function() {
+  
+const FIXED_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzXqtTb90NIITURxNwcrQ1jX4uaclMBsrRSTb6cdeV5uP8L4CE97S6_0fjvcN7BE5Pd-Q/exec';
+
+const DEFAULT_DATA = {
+  zonas: [
+    { nombre: 'MARINAS', tableros: [
+        { id: 'SG21', circuitos: [
+          { num: 1, lums: [299, 301, 303, 305, 307, 309, 311, 646] },
+          { num: 2, lums: [298, 300, 302, 304, 306, 308, 310] },
+          { num: 3, lums: [291, 293, 295, 297, 335, 336] },
+          { num: 4, lums: [294, 296] }
+        ]},
+        { id: 'SG5', circuitos: [
+          { num: 1, lums: [346, 347, 348, 349, 350, 351, 353, 643] },
+          { num: 2, lums: [354, 356, 357, 358, 359, 360, 361, 362, 363] },
+          { num: 3, lums: [341, 342, 343, 344, 345, 355] },
+          { num: 4, lums: [312, 313, 314, 315, 316, 352, 644] }
+        ]},
+        { id: 'SG6', circuitos: [
+          { num: 1, lums: [637, 642, 654, 656] },
+          { num: 2, lums: [638, 645, 649, 650, 651, 652, 653, 655, 657] },
+          { num: 3, lums: [364, 369, 371, 373, 639] },
+          { num: 4, lums: [365, 366, 367, 368, 370, 372, 640, 641] }
+        ]},
+        { id: 'C45', circuitos: [
+          { num: 1, lums: [320, 321, 322, 325, 327, 328, 330, 332, 334, 648] },
+          { num: 2, lums: [317, 318, 319, 323, 647] },
+          { num: 3, lums: [324, 326, 329, 331, 333] }
+        ]},
+        { id: 'SG2', circuitos: [
+          { num: 2, lums: [2, 3, 5, 290, 292, 337, 338, 339, 340] },
+          { num: 3, lums: [1, 4] }
+        ]}
+    ]},
+    { nombre: 'CEIBOS', tableros: [
+        { id: 'SG7', circuitos: [
+          { num: 1, lums: [175, 176, 177, 180, 287] },
+          { num: 2, lums: [183, 184, 202, 203, 204, 205] },
+          { num: 3, lums: [181, 182, 185, 196, 197, 198, 199, 200, 201] },
+          { num: 4, lums: [158, 186, 187, 188, 189, 190, 191, 192] },
+          { num: 5, lums: [159, 160, 161, 163, 165, 167] },
+          { num: 6, lums: [162, 164, 166, 168, 169, 170, 171, 172, 173, 178, 179, 286] }
+        ]},
+        { id: 'C19', circuitos: [
+          { num: 1, lums: [225, 227, 228, 229, 230, 232, 234] },
+          { num: 2, lums: [156, 157, 193, 194, 195, 226, 231, 233, 235] }
+        ]},
+        { id: 'C69', circuitos: [
+          { num: 1, lums: [213, 216, 218, 220, 222, 224] },
+          { num: 2, lums: [212, 215, 217, 219, 221, 223] },
+          { num: 3, lums: [206, 208, 209, 211, 214, 278, 279] },
+          { num: 4, lums: [207, 210, 280, 281, 282, 283, 284, 285] }
+        ]},
+        { id: 'SG3', circuitos: [
+          { num: 1, lums: [236, 237, 238, 239, 240, 241, 242, 243] },
+          { num: 2, lums: [244, 245, 246, 247, 252, 254] },
+          { num: 3, lums: [248, 249, 250, 251, 253, 255] }
+        ]},
+        { id: 'SG8', circuitos: [
+          { num: 1, lums: [271, 272, 274, 275, 276, 277, 288] },
+          { num: 2, lums: [257, 262, 263] },
+          { num: 3, lums: [264, 265, 266, 267, 268, 269, 270, 289] }
+        ]}
+    ]},
+    { nombre: 'MUELLES', tableros: [
+        { id: 'SG3', circuitos: [
+          { num: 1, lums: [376, 378, 380, 382, 384, 397] },
+          { num: 2, lums: [377, 379, 381, 383] },
+          { num: 3, lums: [385, 387, 389, 391, 393, 395, 398] },
+          { num: 4, lums: [386, 388, 390, 392, 394, 396, 400] }
+        ]},
+        { id: 'SG1', circuitos: [
+          { num: 1, lums: [418, 419, 420, 422, 424, 426, 428, 430] },
+          { num: 2, lums: [408, 409, 410, 411, 412, 413, 414, 415] },
+          { num: 3, lums: [402, 403, 404, 405, 406, 407] },
+          { num: 4, lums: [417, 421, 423, 425, 427, 429] }
+        ]},
+        { id: 'C104', circuitos: [
+          { num: 1, lums: [399, 438, 439, 440, 441, 442] },
+          { num: 2, lums: [446, 448, 450, 452] },
+          { num: 3, lums: [444, 445, 447, 449, 451, 496] },
+          { num: 4, lums: [443, 455, 456, 457, 458] }
+        ]},
+        { id: 'C76', circuitos: [
+          { num: 1, lums: [432, 433, 434, 435, 436, 437, 490, 494] },
+          { num: 2, lums: [459, 460, 461, 482, 485, 487, 488] },
+          { num: 3, lums: [481, 483, 484, 486, 489, 491, 495] },
+          { num: 4, lums: [431, 492] }
+        ]},
+        { id: 'C136', circuitos: [
+          { num: 1, lums: [462, 463, 465, 466] },
+          { num: 2, lums: [474, 475, 477, 478, 479, 480] },
+          { num: 3, lums: [467, 468, 469, 470, 471, 472, 473, 476] }
+        ]}
+    ]},
+    { nombre: 'ACACIAS', tableros: [
+        { id: 'SG8', circuitos: [
+          { num: 1, lums: [519, 520, 521, 522, 523, 524, 525] },
+          { num: 2, lums: [505, 508, 509, 510, 511, 512, 513, 514, 515, 516, 557, 559] },
+          { num: 3, lums: [501, 502, 503, 518, 556, 558, 560] },
+          { num: 4, lums: [497, 504, 506, 507, 517, 636, 697] }
+        ]},
+        { id: 'C196', circuitos: [
+          { num: 1, lums: [533, 539, 540, 541, 543, 544] },
+          { num: 2, lums: [534, 536, 537, 538] },
+          { num: 3, lums: [499, 500, 526, 528, 529, 530, 531, 532] }
+        ]},
+        { id: 'SG5', circuitos: [
+          { num: 1, lums: [583, 584, 585, 586, 587, 588, 589, 590] },
+          { num: 2, lums: [577, 578, 579, 580, 581, 582, 598] },
+          { num: 3, lums: [550, 565, 566, 567, 568, 569, 570, 571, 572] },
+          { num: 4, lums: [498, 535, 542, 545, 546, 547, 548, 549, 551, 552, 553, 554, 555, 561, 562, 563, 564] }
+        ]},
+        { id: 'C77', circuitos: [
+          { num: 1, lums: [601, 603, 605, 607, 608, 611] },
+          { num: 2, lums: [600, 602, 604, 606, 610, 612] },
+          { num: 3, lums: [573, 574, 575, 576] },
+          { num: 4, lums: [591, 592, 593, 594, 595, 596, 597, 599] }
+        ]},
+        { id: 'SG1', circuitos: [
+          { num: 2, lums: [621, 622, 623, 624, 630] },
+          { num: 3, lums: [527, 614, 616, 618, 620] },
+          { num: 4, lums: [613, 615, 617, 619] },
+          { num: 5, lums: [625, 626, 627, 628, 629, 631] }
+        ]},
+        { id: 'SG22', circuitos: [
+          { num: 1, lums: [632, 633, 634, 635] }
+        ]}
+    ]},
+    { nombre: 'ARAUCARIAS', tableros: [
+        { id: 'C129', circuitos: [
+          { num: 1, lums: [670, 671, 672, 673, 674, 675, 676, 677, 678, 765, 766] },
+          { num: 2, lums: [679, 680, 681, 682, 684, 685, 686, 687, 688, 767] },
+          { num: 3, lums: [664, 665, 666, 667, 668, 669, 763] }
+        ]},
+        { id: 'C165', circuitos: [
+          { num: 1, lums: [658, 659, 660, 661, 662, 663] },
+          { num: 2, lums: [764] }
+        ]},
+        { id: 'C16', circuitos: [
+          { num: 1, lums: [693, 694, 695, 700, 701, 702, 713, 714, 715] },
+          { num: 2, lums: [689, 690, 691, 692, 768] }
+        ]},
+        { id: 'C20', circuitos: [
+          { num: 1, lums: [696, 697, 698, 699, 769] }
+        ]},
+        { id: 'C92', circuitos: [
+          { num: 1, lums: [716, 718, 721, 727, 729] },
+          { num: 2, lums: [742, 743, 744, 745, 746, 747, 759] },
+          { num: 3, lums: [717, 719, 720, 726, 728] }
+        ]},
+        { id: 'SG62', circuitos: [
+          { num: 1, lums: [755, 757, 760, 761, 762, 775] },
+          { num: 2, lums: [752, 754, 756, 758, 774] }
+        ]},
+        { id: 'SG69', circuitos: [
+          { num: 1, lums: [733, 734, 735, 736, 748, 749, 750, 751, 772, 773] },
+          { num: 2, lums: [730, 731, 737] },
+          { num: 3, lums: [725, 732, 738, 739, 753] },
+          { num: 4, lums: [703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 724, 770, 771] }
+        ]}
+    ]},
+    { nombre: 'COSTAS', tableros: [
+        { id: 'SG2', circuitos: [
+          { num: 1, lums: [26, 27, 28, 29, 30, 31, 67, 68, 69, 70, 71] },
+          { num: 2, lums: [20, 21, 22, 23, 24, 25] },
+          { num: 3, lums: [72, 73, 74, 75, 76, 77] },
+          { num: 4, lums: [16, 17, 18, 19] }
+        ]},
+        { id: 'SG3', circuitos: [
+          { num: 1, lums: [50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61] },
+          { num: 2, lums: [32, 33, 62, 63, 64, 65, 66] },
+          { num: 3, lums: [42, 43, 44, 45, 46, 47, 48, 49, 52] },
+          { num: 4, lums: [34, 35, 36, 37, 38, 39, 40, 41] }
+        ]},
+        { id: 'SG51', circuitos: [
+          { num: 1, lums: [95, 96, 97, 98, 99, 100, 101] },
+          { num: 2, lums: [87, 88, 89, 102, 103] },
+          { num: 3, lums: [90, 91, 92, 93, 94] }
+        ]},
+        { id: 'SG146', circuitos: [
+          { num: 1, lums: [80, 81, 82, 83, 84, 85, 86, 104, 105, 106] },
+          { num: 2, lums: [107, 108, 109, 110, 111, 112, 113, 114] },
+          { num: 3, lums: [115, 116, 117, 118, 119, 120, 121, 122, 123] },
+          { num: 4, lums: [124, 125, 126, 127, 128, 129, 130, 131, 132] }
+        ]},
+        { id: 'C138', circuitos: [
+          { num: 1, lums: [78, 79, 143, 144, 145, 146, 147, 148, 149, 150] },
+          { num: 2, lums: [133, 134, 135, 136, 137, 138, 139, 140, 141, 142] }
+        ]},
+        { id: 'SG21', circuitos: [
+          { num: 3, lums: [1, 2, 3, 4, 5, 6, 7, 8, 151, 152] },
+          { num: 4, lums: [9, 10, 11, 12, 13, 14, 15] }
+        ]}
+    ]},
+    { nombre: 'RIBERAS', tableros: [
+        { id: 'SG9', circuitos: [
+          { num: 1, lums: [10, 11, 12, 104, 105, 106, 107] },
+          { num: 2, lums: [8, 13, 14, 15, 16, 17, 26, 27, 28, 29] },
+          { num: 3, lums: [5, 6, 7, 147, 148, 149] },
+          { num: 4, lums: [9, 108, 109, 145, 146, 150, 151, 152, 153] }
+        ]},
+        { id: 'TAB. GUA', circuitos: [
+          { num: 1, lums: [19, 20, 21, 22, 23, 24, 25] },
+          { num: 2, lums: [1, 2, 3, 4, 18, 154, 160, 161] },
+          { num: 3, lums: [175, 176, 177, 179, 180, 181, 182] },
+          { num: 4, lums: [162, 163, 164, 193, 194, 195] }
+        ]},
+        { id: 'SG10', circuitos: [
+          { num: 1, lums: [30, 31, 32, 33, 34, 101, 102, 103] },
+          { num: 2, lums: [35, 36, 98, 99, 100, 110, 111, 112] },
+          { num: 3, lums: [141, 142, 143, 144, 155, 156, 157, 158, 159] }
+        ]},
+        { id: 'SG11', circuitos: [
+          { num: 1, lums: [113, 114, 115, 135, 136, 137, 138, 139, 140] },
+          { num: 2, lums: [43, 87, 88, 89, 90, 120, 121, 133, 134] },
+          { num: 3, lums: [37, 38, 39, 40, 94, 95, 96, 97, 116, 117] },
+          { num: 4, lums: [41, 42, 91, 92, 93, 118, 119] }
+        ]},
+        { id: 'SG16', circuitos: [
+          { num: 1, lums: [44, 45, 46, 47, 84, 85, 86, 125, 126, 127] },
+          { num: 2, lums: [48, 49, 62, 66, 67, 68, 69, 70, 71, 72, 73, 77, 78, 79] },
+          { num: 3, lums: [122, 123, 124, 128, 129, 130, 131, 132] },
+          { num: 4, lums: [74, 75, 76, 80, 81, 82, 83] }
+        ]},
+        { id: 'SG19', circuitos: [
+          { num: 1, lums: [55, 56, 57, 58, 59, 60, 61, 63, 64, 65] },
+          { num: 2, lums: [50, 51, 52, 53, 54] }
+        ]},
+        { id: 'SG6', circuitos: [
+          { num: 1, lums: [165, 166, 167, 168, 169, 170, 171, 172, 178, 187] },
+          { num: 2, lums: [173, 174, 183, 184, 185, 186] },
+          { num: 3, lums: [188, 189, 190, 191] },
+          { num: 4, lums: [192] }
+        ]}
+    ]},
+    { nombre: 'AMARRAS', tableros: [
+        { id: 'SG2', circuitos: [
+          { num: 1, lums: [219, 220, 221, 223, 224, 226, 227, 229, 240] },
+          { num: 2, lums: [1, 2, 4, 5, 7, 229, 230, 278, 295, 296] },
+          { num: 3, lums: [231, 233, 237, 239, 292, 294] },
+          { num: 4, lums: [562, 563, 565, 567, 568, 569, 571, 647] }
+        ]},
+        { id: 'SG7', circuitos: [
+          { num: 1, lums: [296, 297, 299, 301, 302, 305, 308] },
+          { num: 2, lums: [300, 453, 456, 459, 494, 497, 499, 647] }
+        ]},
+        { id: 'SG11', circuitos: [
+          { num: 1, lums: [173, 176, 179, 279, 283] },
+          { num: 2, lums: [180, 181, 183, 186, 191, 270, 274, 277] },
+          { num: 3, lums: [242, 244, 246, 248, 285, 287, 288] }
+        ]},
+        { id: 'SG12', circuitos: [
+          { num: 1, lums: [209, 211, 212, 213, 215, 216, 218] },
+          { num: 2, lums: [208, 249, 250, 254, 257, 258, 259, 261, 264] },
+          { num: 3, lums: [196, 200, 201, 203, 204, 207] }
+        ]},
+        { id: 'SG15', circuitos: [
+          { num: 1, lums: [141, 142, 145, 147, 151, 153, 154] },
+          { num: 2, lums: [155, 158, 162, 164, 166] },
+          { num: 3, lums: [9, 12, 14, 140, 170] }
+        ]},
+        { id: 'SG16', circuitos: [
+          { num: 1, lums: [50, 51, 53, 57, 61, 66] },
+          { num: 2, lums: [69, 73, 76, 79, 82, 85] },
+          { num: 3, lums: [87, 91, 94, 97, 100, 104] },
+          { num: 4, lums: [107, 111, 115, 119, 121] }
+        ]},
+        { id: 'SG17', circuitos: [
+          { num: 1, lums: [25, 26, 28, 32, 34, 39] },
+          { num: 2, lums: [16, 19, 22, 133, 135, 138] },
+          { num: 3, lums: [30, 41, 42, 44, 48, 49, 122, 123, 127] }
+        ]},
+        { id: 'SG18', circuitos: [
+          { num: 1, lums: [528, 532, 534, 537, 540, 543, 546, 550, 553] },
+          { num: 2, lums: [549, 551, 552, 554, 556, 557, 558, 560, 579, 588] }
+        ]},
+        { id: 'SG19', circuitos: [
+          { num: 1, lums: [502, 505, 507, 510, 622, 627, 630, 632, 633] },
+          { num: 2, lums: [570, 573, 576, 578, 581, 635, 637, 639, 643, 645] },
+          { num: 3, lums: [511, 512, 515, 517, 521, 525, 611, 612, 617, 620, 621] },
+          { num: 4, lums: [583, 585, 587, 589, 593, 596, 597, 598, 601, 604, 607, 608] }
+        ]},
+        { id: 'SG20', circuitos: [
+          { num: 1, lums: [460, 461, 462, 463, 466] },
+          { num: 2, lums: [468, 472, 474, 475, 476, 480] },
+          { num: 3, lums: [482, 485, 487, 490, 492, 493] }
+        ]},
+        { id: 'SG23', circuitos: [
+          { num: 1, lums: [424, 429, 433, 436, 439, 441] },
+          { num: 2, lums: [313, 316, 318, 321, 325, 328, 333, 442, 445, 449] },
+          { num: 3, lums: [337, 340, 342, 344, 345, 346, 347, 348, 352, 353] }
+        ]},
+        { id: 'SG26', circuitos: [
+          { num: 1, lums: [354, 358, 391, 393, 396, 398, 403] },
+          { num: 2, lums: [378, 381, 384, 387, 390] },
+          { num: 3, lums: [360, 362, 364, 367, 371, 374, 376] }
+        ]}
+    ]},
+    { nombre: 'TRONCAL', tableros: [
+        { id: 'SG3 (Amarras)', circuitos: [
+          { num: 1, lums: [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124] }
+        ]},
+        { id: 'Tab. Palos Borrachos', circuitos: [
+          { num: 1, lums: [4169, 4170, 4171, 4172, 4173, 4174] },
+          { num: 2, lums: [4143, 4144, 4145, 4146, 4147, 4148, 4149, 4150, 4151, 4152, 4153, 4154, 4155, 4156, 4157, 4158, 4159, 4160, 4161, 4162, 4163, 4164, 4165, 4166, 4167, 4168] }
+        ]},
+        { id: 'SG21 (Costas)', circuitos: [
+          { num: 1, lums: [4100, 4101, 4102, 4103, 4104, 4105, 4106, 4107, 4108, 4109, 4110, 4111, 4112, 4113, 4114, 4115, 4116, 4117, 4118, 4119] },
+          { num: 2, lums: [4120, 4121, 4122, 4123, 4124, 4125, 4126, 4127, 4128, 4129, 4130, 4131, 4132, 4133, 4134, 4135, 4136, 4137, 4138, 4139, 4140, 4141, 4142] }
+        ]},
+        { id: 'SGB (Ceibos)', circuitos: [
+          { num: 1, lums: [4067, 4068, 4069, 4070, 4071, 4072, 4073, 4074, 4075, 4076, 4077, 4078, 4079] },
+          { num: 2, lums: [4080, 4081, 4082, 4083, 4084, 4085, 4086, 4087, 4088, 4089, 4090, 4091, 4092, 4093, 4094, 4095, 4096, 4097, 4098, 4099] }
+        ]},
+        { id: 'CT-Vistas / Ptos. Cardinales', circuitos: [
+          { num: 1, lums: [4119, 4120, 4121, 4122, 4123, 4124, 4125, 4126, 4127, 4128, 4129, 4130, 4131] },
+          { num: 2, lums: [4047, 4048, 4049, 4050, 4051, 4052, 4053, 4054, 4055, 4056, 4057, 4058, 4059, 4060, 4061, 4062, 4063, 4064, 4065, 4066] },
+          { num: 3, lums: [4083, 4084, 4085, 4086, 4087, 4088, 4089, 4090, 4091, 4092, 4093, 4094, 4095, 4096, 4097, 4098, 4099, 4134, 4135, 4136, 4137, 4139, 4140, 4143, 4144, 4145] }
+        ]},
+        { id: 'SG3 (Vistas)', circuitos: [
+          { num: 1, lums: [4033, 4034, 4109, 4110, 4113, 4114, 4216, 4217, 4218, 4219, 4220, 4221, 4222] },
+          { num: 2, lums: [4117, 4118, 4224, 4225, 4226, 4227, 4228, 4230, 4231] }
+        ]},
+        { id: 'Cámara Compas', circuitos: [
+          { num: 1, lums: [4200, 4201, 4202, 4203, 4204, 4205, 4206, 4207] },
+          { num: 2, lums: [4031, 4032, 4035, 4036, 4037, 4038, 4102, 4103, 4104, 4105, 4106, 4111, 4115, 4116, 4199, 4208, 4213, 4214] }
+        ]},
+        { id: 'Guardia Acc Lag', circuitos: [
+          { num: 1, lums: [4008, 4009, 4012, 4013, 4014, 4015, 4016, 4017, 4018, 4019, 4020, 4021, 4022, 4023, 4024, 4025, 4026, 4027, 4028, 4029, 4030, 4039, 4040, 4041, 4100, 4101, 4102, 4107, 4108, 4233, 4234, 4235] }
+        ]},
+        { id: 'SG22 (Acacias)', circuitos: [
+          { num: 3, lums: [4146, 4147, 4148, 4149, 4150, 4151, 4152, 4153, 4154, 4155, 4156, 4157, 4158, 4159, 4160, 4161, 4162, 4163, 4164, 4165, 4166, 4167, 4168, 4169, 4170, 4171, 4172, 4173, 4174, 4175, 4176] }
+        ]}
+    ]}
+  ],
+  historial: []
+};
+
+let S = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let fallas = {};
+let obsTablero = {};
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+function init() {
+  const saved = localStorage.getItem('lumicheck_avp');
+  if (saved) { try { const p = JSON.parse(saved); S = {...DEFAULT_DATA,...p, zonas: DEFAULT_DATA.zonas}; } catch(e){} }
+
+  // Always ensure the fixed URL is set
+  S.sheetsURL = localStorage.getItem('lumicheck_avp_sheetsurl') || FIXED_SHEETS_URL;
+  document.getElementById('sheets-url').value = S.sheetsURL;
+  setSheetsOK(true);
+
+  const now = new Date();
+  document.getElementById('lp-fecha-display').value =
+    now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('lp-hora-inicio').value =
+    now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+
+  renderZonas();
+  renderZonaFilter();
+  renderPanel();
+  renderConfigZonas();
+}
+
+function save() { localStorage.setItem('lumicheck_avp', JSON.stringify(S)); }
+
+// ══════════════════════════════════
+// TABS
+// ══════════════════════════════════
+function showTab(t) {
+  ['recorrida','panel','config'].forEach((id,i) => {
+    document.getElementById('lp-screen-'+id).classList.toggle('active', id===t);
+    document.querySelectorAll('#app-luminarias .tab')[i].classList.toggle('active', id===t);
+  });
+  if (t==='panel') renderPanel();
+}
+
+// ══════════════════════════════════
+// RENDER ZONAS
+// ══════════════════════════════════
+function renderZonas(filter='') {
+  const container = document.getElementById('zonas-container');
+  container.innerHTML = '';
+  const lista = filter ? S.zonas.filter(z=>z.nombre===filter) : S.zonas;
+
+  lista.forEach(zona => {
+    let zonaFallas = 0;
+    zona.tableros.forEach(t => t.circuitos.forEach(c => c.lums.forEach(l => {
+      if (fallas[`${zona.nombre}|${t.id}|${c.num}|${l}`]) zonaFallas++;
+    })));
+
+    const zonaEl = document.createElement('div');
+    zonaEl.className = 'zona-section';
+    zonaEl.innerHTML = `
+      <div class="zona-header" onclick="toggleZona('zbody_${zona.nombre}','zarrow_${zona.nombre}')">
+        <div class="zona-pill">${zona.nombre}</div>
+        <div class="zona-title">${zona.tableros.length} tableros</div>
+        <div class="zona-falla-count">${zonaFallas>0?zonaFallas+' fallas':''}</div>
+        <div class="zona-chevron open" id="zarrow_${zona.nombre}">▼</div>
+      </div>
+      <div class="zona-body open" id="zbody_${zona.nombre}">
+        ${zona.tableros.map(t => renderTableroHTML(zona.nombre, t)).join('')}
+      </div>
+    `;
+    container.appendChild(zonaEl);
+  });
+  updateStats();
+}
+
+function renderTableroHTML(zonaNombre, tablero) {
+  let tFallas = 0;
+  tablero.circuitos.forEach(c => c.lums.forEach(l => {
+    if (fallas[`${zonaNombre}|${tablero.id}|${c.num}|${l}`]) tFallas++;
+  }));
+  const obsKey = `${zonaNombre}|${tablero.id}`;
+  const obsVal = obsTablero[obsKey] || '';
+  const circuitosHTML = tablero.circuitos.filter(c=>c.lums.length>0).map(c => {
+    const lumsHTML = c.lums.map(l => {
+      const key = `${zonaNombre}|${tablero.id}|${c.num}|${l}`;
+      return `<div class="lum${fallas[key]?' falla':''}" onclick="toggleFalla('${key}')" data-lum="${l}">${l}</div>`;
+    }).join('');
+    return `<div class="circ-wrap">
+      <div class="circ-label">Circuito <span class="circ-num">${c.num}</span></div>
+      <div class="lum-grid">${lumsHTML}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="tablero">
+    <div class="tablero-head" onclick="toggleTablero('tb_${zonaNombre}_${tablero.id}')">
+      <div class="tablero-id">${tablero.id}</div>
+      <div class="tablero-badge ${tFallas>0?'fallas':'ok'}">${tFallas>0?tFallas+' falla'+(tFallas>1?'s':''):'sin fallas'}</div>
+      <span style="color:var(--muted);font-size:10px;margin-left:4px;">▼</span>
+    </div>
+    <div class="tablero-body" id="tb_${zonaNombre}_${tablero.id}">
+      ${circuitosHTML}
+      <div class="obs-row" onclick="toggleObs('obs_${zonaNombre}_${tablero.id}')">
+        📝 <span>Observación del tablero</span>
+      </div>
+      <div class="obs-panel${obsVal?' open':''}" id="obs_${zonaNombre}_${tablero.id}">
+        <textarea placeholder="Ej: Puerta dañada, cableado expuesto..."
+          onchange="setObs('${obsKey}',this.value)">${obsVal}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleZona(bodyId, arrowId) {
+  document.getElementById(bodyId)?.classList.toggle('open');
+  document.getElementById(arrowId)?.classList.toggle('open');
+}
+function toggleTablero(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = el.style.display==='none' ? '' : 'none';
+}
+function toggleObs(id) { document.getElementById(id)?.classList.toggle('open'); }
+function setObs(key, val) { obsTablero[key] = val; }
+
+// ══════════════════════════════════
+// TOGGLE FALLA
+// ══════════════════════════════════
+function toggleFalla(key) {
+  fallas[key] ? delete fallas[key] : (fallas[key] = true);
+  const parts = key.split('|');
+  const el = document.querySelector(`[data-lum="${parts[3]}"]`);
+  if (el) el.classList.toggle('falla', !!fallas[key]);
+  updateStats();
+  updateTableroCount(parts[0], parts[1]);
+  updateZonaCount(parts[0]);
+}
+
+function updateTableroCount(zona, tablero) {
+  let count = Object.keys(fallas).filter(k=>k.startsWith(`${zona}|${tablero}|`)).length;
+  const el = document.querySelector(`#tb_${zona}_${tablero}`)?.closest('.tablero')?.querySelector('.tablero-badge');
+  if (el) {
+    el.textContent = count>0 ? `${count} falla${count>1?'s':''}` : 'sin fallas';
+    el.className = `tablero-badge ${count>0?'fallas':'ok'}`;
+  }
+}
+function updateZonaCount(zonaNombre) {
+  let count = Object.keys(fallas).filter(k=>k.startsWith(`${zonaNombre}|`)).length;
+  document.querySelectorAll('.zona-header').forEach(zh => {
+    if (zh.querySelector('.zona-pill')?.textContent===zonaNombre) {
+      const el = zh.querySelector('.zona-falla-count');
+      if (el) el.textContent = count>0 ? `${count} fallas` : '';
+    }
+  });
+}
+function updateStats() {
+  const filter = document.getElementById('zona-filter')?.value || '';
+  const lista = filter ? S.zonas.filter(z=>z.nombre===filter) : S.zonas;
+  let total = 0;
+  lista.forEach(z=>z.tableros.forEach(t=>t.circuitos.forEach(c=>{total+=c.lums.length;})));
+  const fc = Object.keys(fallas).filter(k => !filter || k.startsWith(filter+'|')).length;
+  const ok = total-fc;
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('lp-st-fallas').textContent = fc;
+  document.getElementById('lp-st-ok').textContent = ok;
+  document.getElementById('st-pct').textContent = total>0 ? Math.round((ok/total)*100)+'%' : '—';
+}
+
+// ══════════════════════════════════
+// FILTER
+// ══════════════════════════════════
+function renderZonaFilter() {
+  const sel = document.getElementById('zona-filter');
+  sel.innerHTML = '<option value="">Todas las zonas</option>';
+  S.zonas.forEach(z => {
+    const o = document.createElement('option');
+    o.value = z.nombre; o.textContent = z.nombre;
+    sel.appendChild(o);
+  });
+}
+function filterZona() { renderZonas(document.getElementById('zona-filter').value); }
+
+// ══════════════════════════════════
+// ENVIAR
+// ══════════════════════════════════
+async function enviarRecorrida() {
+  const tecnico = document.getElementById('lp-tecnico').value.trim();
+  if (!tecnico) { showToast('⚠ Ingresá el nombre del técnico'); return; }
+
+  const now = new Date();
+  const fallasList = Object.keys(fallas).map(key => {
+    const [zona, tablero, circuito, luminaria] = key.split('|');
+    return {zona, tablero, circuito, luminaria};
+  });
+
+  const registro = {
+    id: Date.now(),
+    fecha: now.toLocaleDateString('es-AR'),
+    hora: now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+    tecnico,
+    totalLums: parseInt(document.getElementById('st-total').textContent)||0,
+    totalFallas: fallasList.length,
+    fallas: fallasList,
+    observaciones: {...obsTablero}
+  };
+
+  S.historial.unshift(registro); save();
+
+  const btn = document.getElementById('lp-btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Guardando...';
+
+  const url = S.sheetsURL || FIXED_SHEETS_URL;
+  try {
+    await fetch(url, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(registro)
+    });
+    showToast('✅ Enviado a Google Sheets');
+  } catch(e) {
+    showToast('⚠ Error de red — guardado local');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Finalizar y registrar recorrida';
+  renderPanel();
+}
+
+function resetRecorrida() {
+  if (!confirm('¿Iniciar nueva recorrida? Se borrarán las marcas actuales.')) return;
+  fallas = {}; obsTablero = {};
+  document.getElementById('lp-tecnico').value = '';
+  const now = new Date();
+  document.getElementById('lp-hora-inicio').value = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  renderZonas();
+  showToast('Nueva recorrida iniciada');
+}
+
+// ══════════════════════════════════
+// PANEL
+// ══════════════════════════════════
+function renderPanel() {
+  const totalF = S.historial.reduce((a,r)=>a+r.totalFallas,0);
+  const totalL = S.historial.reduce((a,r)=>a+r.totalLums,0);
+  const efic = totalL>0 ? Math.round(((totalL-totalF)/totalL)*100) : 0;
+
+  document.getElementById('ph-recorridas').textContent = S.historial.length;
+  document.getElementById('lp-ph-fallas').textContent = totalF;
+  document.getElementById('lp-ph-efic').textContent = S.historial.length ? efic+'%' : '—';
+
+  const lista = document.getElementById('lp-hist-lista');
+  if (!S.historial.length) {
+    lista.innerHTML = '<div style="padding:24px 16px;text-align:center;color:var(--muted);font-size:12px;">Sin registros aún.</div>';
+    return;
+  }
+  lista.innerHTML = S.historial.slice(0,15).map(r => {
+    const fp = {};
+    r.fallas.forEach(f => {
+      const k = `${f.zona} — ${f.tablero}`;
+      if (!fp[k]) fp[k]=[];
+      fp[k].push(f.luminaria);
+    });
+    const detalle = Object.entries(fp).map(([k,v])=>`${k}: lum. ${v.join(', ')}`).join(' · ');
+    return `<div class="hist-card">
+      <div class="hist-top">
+        <div class="hist-name">${r.tecnico}</div>
+        <div class="hist-chip ${r.totalFallas>0?'f':'o'}">${r.totalFallas>0?r.totalFallas+' fallas':'sin fallas'}</div>
+      </div>
+      <div class="hist-meta">${r.fecha} ${r.hora} · ${r.totalLums} luminarias</div>
+      ${r.totalFallas>0?`<div class="hist-detail">↳ ${detalle}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function exportarCSV() {
+  if (!S.historial.length) { showToast('Sin registros'); return; }
+  let csv = 'ID,Fecha,Hora,Tecnico,Zona,Tablero,Circuito,Luminaria,Estado\n';
+  S.historial.forEach(r => {
+    if (!r.fallas.length) {
+      csv += `"${r.id}","${r.fecha}","${r.hora}","${r.tecnico}","","","","","Sin fallas"\n`;
+    } else {
+      r.fallas.forEach(f => {
+        csv += `"${r.id}","${r.fecha}","${r.hora}","${r.tecnico}","${f.zona}","${f.tablero}","${f.circuito}","${f.luminaria}","FALLA"\n`;
+      });
+    }
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `avp_luminarias_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('✅ CSV exportado');
+}
+
+function abrirSheets() {
+  window.open(S.sheetsURL || FIXED_SHEETS_URL,'_blank');
+}
+
+// ══════════════════════════════════
+// PDF
+// ══════════════════════════════════
+function buildPDF(registro) {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const PW=210, PH=297, ML=15, MR=15, CW=PW-ML-MR;
+
+  // Header gradient simulation (dark blue)
+  doc.setFillColor(13,58,110);
+  doc.rect(0,0,PW,22,'F');
+  doc.setFillColor(26,95,168);
+  doc.rect(PW/2,0,PW/2,22,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.setTextColor(255,255,255);
+  doc.text('MANTENIMIENTO PREVENTIVO AVP', ML, 10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(168,212,255);
+  doc.text('VERIFICACION DE LUMINARIAS PUBLICAS', ML, 17);
+
+  doc.setFillColor(240,244,250);
+  doc.rect(0,22,PW,28,'F');
+  doc.setDrawColor(200,212,227); doc.line(0,50,PW,50);
+
+  const campos = [
+    ['TECNICO', registro.tecnico],
+    ['FECHA', registro.fecha],
+    ['HORA', registro.hora],
+    ['TOTAL LUMS', String(registro.totalLums)],
+    ['FALLAS', String(registro.totalFallas)],
+    ['EFICIENCIA', registro.totalLums>0 ? Math.round(((registro.totalLums-registro.totalFallas)/registro.totalLums)*100)+'%' : '-']
+  ];
+  campos.forEach((c,i) => {
+    const col = i%3, row = Math.floor(i/3);
+    const x = ML+col*(CW/3), yy = 27+row*11;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(90,122,153);
+    doc.text(c[0], x, yy);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(13,31,53);
+    doc.text(c[1], x, yy+5);
+  });
+
+  let y = 58;
+  const fp = {};
+  registro.fallas.forEach(f => {
+    const k = `${f.zona} | ${f.tablero}`;
+    if (!fp[k]) fp[k]={};
+    if (!fp[k][f.circuito]) fp[k][f.circuito]=[];
+    fp[k][f.circuito].push(f.luminaria);
+  });
+
+  if (Object.keys(fp).length>0) {
+    doc.setFillColor(240,244,250); doc.rect(ML,y,CW,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(13,58,110);
+    doc.text('FALLAS DETECTADAS POR TABLERO', ML+3, y+5); y+=10;
+
+    Object.entries(fp).forEach(([tablero,circs]) => {
+      if (y>PH-30) { doc.addPage(); y=20; }
+      doc.setFillColor(248,250,253); doc.rect(ML,y,CW,6,'F');
+      doc.setDrawColor(200,212,227); doc.rect(ML,y,CW,6,'S');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(26,86,219);
+      doc.text(tablero, ML+3, y+4.2);
+      const fc2 = Object.values(circs).flat().length;
+      doc.setTextColor(220,38,38);
+      doc.text(`${fc2} falla${fc2>1?'s':''}`, ML+CW-18, y+4.2);
+      y+=7;
+
+      Object.entries(circs).forEach(([circ,lums]) => {
+        if (y>PH-30) { doc.addPage(); y=20; }
+        doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(90,122,153);
+        doc.text(`Circ. ${circ}:`, ML+4, y+3.5);
+        doc.setTextColor(220,38,38); doc.setFont('helvetica','bold');
+        const lines = doc.splitTextToSize(lums.map(l=>`[${l}]`).join(' '), CW-32);
+        doc.text(lines, ML+22, y+3.5);
+        y+=5*lines.length+2;
+      });
+      y+=2;
+    });
+  } else {
+    doc.setFillColor(220,252,231); doc.setDrawColor(134,239,172);
+    doc.roundedRect(ML,y,CW,12,3,3,'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(21,128,61);
+    doc.text('SIN FALLAS — Todas las luminarias operativas', ML+CW/2, y+8, {align:'center'});
+    y+=16;
+  }
+
+  if (registro.fallas.length>0) {
+    if (y>PH-50) { doc.addPage(); y=20; }
+    doc.setFillColor(240,244,250); doc.rect(ML,y,CW,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(13,58,110);
+    doc.text('DETALLE COMPLETO', ML+3, y+5); y+=9;
+
+    doc.autoTable({
+      startY: y, margin: {left:ML,right:MR},
+      head: [['#','Zona','Tablero','Circ.','Luminaria','Estado']],
+      body: registro.fallas.map((f,i)=>[i+1,f.zona,f.tablero,f.circuito,f.luminaria,'FALLA']),
+      styles: { font:'helvetica', fontSize:8, fillColor:[255,255,255], textColor:[13,31,53], lineColor:[200,212,227], lineWidth:.3 },
+      headStyles: { fillColor:[13,58,110], textColor:[255,255,255], fontStyle:'bold', fontSize:7 },
+      alternateRowStyles: { fillColor:[240,244,250] },
+      columnStyles: { 0:{cellWidth:8,halign:'center'}, 5:{textColor:[220,38,38],fontStyle:'bold'} }
+    });
+    y = doc.lastAutoTable.finalY+8;
+  }
+
+  if (registro.observaciones) {
+    const obs = Object.entries(registro.observaciones).filter(([,v])=>v);
+    if (obs.length>0) {
+      if (y>PH-40) { doc.addPage(); y=20; }
+      doc.setFillColor(240,244,250); doc.rect(ML,y,CW,7,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(13,58,110);
+      doc.text('OBSERVACIONES', ML+3, y+5); y+=10;
+      obs.forEach(([k,v]) => {
+        doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(26,86,219);
+        doc.text(k, ML, y); y+=5;
+        doc.setFont('helvetica','normal'); doc.setTextColor(44,74,110);
+        const lines = doc.splitTextToSize(v, CW);
+        doc.text(lines, ML, y); y+=lines.length*4.5+4;
+      });
+    }
+  }
+
+  for (let i=1; i<=doc.getNumberOfPages(); i++) {
+    doc.setPage(i);
+    doc.setFillColor(13,58,110); doc.rect(0,PH-10,PW,10,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(168,212,255);
+    doc.text('Mantenimiento Preventivo AVP — Verificacion de Luminarias Publicas', ML, PH-4);
+    doc.text(`Pag. ${i} / ${doc.getNumberOfPages()}`, PW-MR, PH-4, {align:'right'});
+  }
+  return doc;
+}
+
+function exportarPDF_recorrida() {
+  const tecnico = document.getElementById('lp-tecnico').value.trim();
+  if (!tecnico) { showToast('⚠ Ingresá el nombre del técnico'); return; }
+  const fallasList = Object.keys(fallas).map(key => {
+    const [zona,tablero,circuito,luminaria] = key.split('|');
+    return {zona,tablero,circuito,luminaria};
+  });
+  const now = new Date();
+  const reg = {
+    tecnico, fecha: now.toLocaleDateString('es-AR'),
+    hora: now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+    totalLums: parseInt(document.getElementById('st-total').textContent)||0,
+    totalFallas: fallasList.length, fallas: fallasList,
+    observaciones: {...obsTablero}
+  };
+  buildPDF(reg).save(`avp_${now.toISOString().slice(0,10)}.pdf`);
+  showToast('✅ PDF generado');
+}
+
+function exportarPDF_historial() {
+  if (!S.historial.length) { showToast('Sin registros'); return; }
+  const doc = buildPDF(S.historial[0]);
+  S.historial.slice(1).forEach(r => {
+    doc.addPage();
+    doc.autoTable({
+      startY: 14, margin:{left:15,right:15},
+      head:[['Zona','Tablero','Circuito','Luminaria']],
+      body: r.fallas.length>0 ? r.fallas.map(f=>[f.zona,f.tablero,f.circuito,f.luminaria]) : [['—','—','—','Sin fallas']],
+      styles:{font:'helvetica',fontSize:8,fillColor:[255,255,255],textColor:[13,31,53]},
+      headStyles:{fillColor:[13,58,110],textColor:[255,255,255]}
+    });
+  });
+  doc.save(`avp_historial_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast('✅ PDF del historial generado');
+}
+
+// ══════════════════════════════════
+// CONFIG
+// ══════════════════════════════════
+function renderConfigZonas() {
+  const c = document.getElementById('zonas-config');
+  c.innerHTML = S.zonas.map((z,zi) => `
+    <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
+      <div class="conf-row" style="margin-bottom:8px;">
+        <input type="text" value="${z.nombre}" id="zname_${zi}" placeholder="Nombre zona" style="font-weight:700;" />
+        <button class="btn-rm" onclick="removeZona(${zi})">✕</button>
+      </div>
+      ${z.tableros.map((t,ti) => `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:8px;">
+          <div class="conf-row">
+            <input type="text" value="${t.id}" id="tid_${zi}_${ti}" placeholder="ID Tablero" style="font-weight:700;" />
+            <button class="btn-rm" onclick="removeTablero(${zi},${ti})">✕</button>
+          </div>
+          ${t.circuitos.map((c2,ci) => `
+            <div style="display:flex;gap:6px;margin-top:6px;align-items:center;">
+              <span style="font-size:10px;color:var(--muted);width:60px;flex-shrink:0;font-weight:700;">Circ. ${c2.num}</span>
+              <input type="text" value="${c2.lums.join(',')}" id="clums_${zi}_${ti}_${ci}" style="font-size:12px;" />
+              <button class="btn-rm" onclick="removeCircuito(${zi},${ti},${ci})">✕</button>
+            </div>
+          `).join('')}
+          <button class="btn-dashed" style="margin-top:8px;padding:7px;font-size:10px;" onclick="addCircuito(${zi},${ti})">+ Circuito</button>
+        </div>
+      `).join('')}
+      <button class="btn-dashed" onclick="addTablero(${zi})">+ Tablero</button>
+    </div>
+  `).join('');
+}
+
+function addZonaConfig()          { S.zonas.push({nombre:'NUEVA ZONA',tableros:[]}); renderConfigZonas(); }
+function removeZona(zi)           { S.zonas.splice(zi,1); renderConfigZonas(); }
+function addTablero(zi)           { S.zonas[zi].tableros.push({id:'SG?',circuitos:[{num:1,lums:[]}]}); renderConfigZonas(); }
+function removeTablero(zi,ti)     { S.zonas[zi].tableros.splice(ti,1); renderConfigZonas(); }
+function addCircuito(zi,ti) {
+  const next = S.zonas[zi].tableros[ti].circuitos.length+1;
+  S.zonas[zi].tableros[ti].circuitos.push({num:next,lums:[]});
+  renderConfigZonas();
+}
+function removeCircuito(zi,ti,ci) { S.zonas[zi].tableros[ti].circuitos.splice(ci,1); renderConfigZonas(); }
+
+function guardarConfig() {
+  S.zonas = S.zonas.map((z,zi) => ({
+    nombre: (document.getElementById(`zname_${zi}`)?.value||z.nombre).toUpperCase().trim(),
+    tableros: z.tableros.map((t,ti) => ({
+      id: (document.getElementById(`tid_${zi}_${ti}`)?.value||t.id).trim(),
+      circuitos: t.circuitos.map((c2,ci) => {
+        const raw = document.getElementById(`clums_${zi}_${ti}_${ci}`)?.value||'';
+        return {num:c2.num, lums:raw.split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n))};
+      })
+    }))
+  })).filter(z=>z.nombre&&z.tableros.length);
+  save(); renderZonas(); renderZonaFilter(); renderConfigZonas();
+  showToast('✅ Configuración guardada');
+}
+
+function guardarSheets() {
+  const url = document.getElementById('sheets-url').value.trim();
+  S.sheetsURL = url || FIXED_SHEETS_URL;
+  localStorage.setItem('lumicheck_avp_sheetsurl', S.sheetsURL);
+  setSheetsOK(true);
+  showToast('✅ URL guardada');
+}
+function setSheetsOK(ok) {
+  document.getElementById('sheets-dot').className = `dot ${ok?'g':'r'}`;
+  document.getElementById('sheets-msg').textContent = ok?'Conectado':'No configurado';
+}
+
+// ══════════════════════════════════
+// APPS SCRIPT
+// ══════════════════════════════════
+const GAS = [
+  '// Mantenimiento Preventivo AVP — Google Apps Script',
+  '// Pegar en: Apps Script del Google Sheet',
+  '// Implementar > App web > Acceso: Cualquiera',
+  '',
+  'function doPost(e) {',
+  '  try {',
+  '    const d = JSON.parse(e.postData.contents);',
+  '    const ss = SpreadsheetApp.getActiveSpreadsheet();',
+  '    let sh = ss.getSheetByName("Recorridas") || ss.insertSheet("Recorridas");',
+  '    if (sh.getLastRow() === 0) {',
+  '      sh.appendRow(["ID","Fecha","Hora","Tecnico","Total Lums","Total Fallas","% Eficiencia"]);',
+  '    }',
+  '    const pct = d.totalLums > 0',
+  '      ? Math.round(((d.totalLums - d.totalFallas) / d.totalLums) * 100) + "%"',
+  '      : "-";',
+  '    sh.appendRow([d.id, d.fecha, d.hora, d.tecnico, d.totalLums, d.totalFallas, pct]);',
+  '    let sf = ss.getSheetByName("Fallas") || ss.insertSheet("Fallas");',
+  '    if (sf.getLastRow() === 0) {',
+  '      sf.appendRow(["ID Recorrida","Fecha","Tecnico","Zona","Tablero","Circuito","Luminaria"]);',
+  '    }',
+  '    (d.fallas || []).forEach(function(f) {',
+  '      sf.appendRow([d.id, d.fecha, d.tecnico, f.zona, f.tablero, f.circuito, f.luminaria]);',
+  '    });',
+  '    if (d.observaciones && Object.keys(d.observaciones).length > 0) {',
+  '      let so = ss.getSheetByName("Observaciones") || ss.insertSheet("Observaciones");',
+  '      if (so.getLastRow() === 0) {',
+  '        so.appendRow(["ID Recorrida","Fecha","Tecnico","Tablero","Observacion"]);',
+  '      }',
+  '      Object.entries(d.observaciones).forEach(function(entry) {',
+  '        if (entry[1]) so.appendRow([d.id, d.fecha, d.tecnico, entry[0], entry[1]]);',
+  '      });',
+  '    }',
+  '    return ContentService',
+  '      .createTextOutput(JSON.stringify({status:"ok"}))',
+  '      .setMimeType(ContentService.MimeType.JSON);',
+  '  } catch(err) {',
+  '    return ContentService',
+  '      .createTextOutput(JSON.stringify({status:"error",msg:err.toString()}))',
+  '      .setMimeType(ContentService.MimeType.JSON);',
+  '  }',
+  '}'
+].join('\n');
+
+function verScript() {
+  document.getElementById('script-txt').textContent = GAS;
+  document.getElementById('modal-script').classList.add('open');
+}
+function cerrarModal() { document.getElementById('modal-script').classList.remove('open'); }
+function copiarScript() {
+  navigator.clipboard.writeText(GAS).then(()=>{ showToast('✅ Código copiado'); cerrarModal(); });
+}
+
+// ══════════════════════════════════
+// TOAST
+// ══════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('lp-toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+  window.enviarRecorrida = window.enviarRecorrida || (typeof enviarRecorrida !== 'undefined' ? enviarRecorrida : null);
+  window.exportarPDF_historial = window.exportarPDF_historial || (typeof exportarPDF_historial !== 'undefined' ? exportarPDF_historial : null);
+  window.cerrarModal = window.cerrarModal || (typeof cerrarModal !== 'undefined' ? cerrarModal : null);
+  window.resetRecorrida = window.resetRecorrida || (typeof resetRecorrida !== 'undefined' ? resetRecorrida : null);
+  window.verScript = window.verScript || (typeof verScript !== 'undefined' ? verScript : null);
+  window.abrirSheets = window.abrirSheets || (typeof abrirSheets !== 'undefined' ? abrirSheets : null);
+  window.guardarSheets = window.guardarSheets || (typeof guardarSheets !== 'undefined' ? guardarSheets : null);
+  window.exportarCSV = window.exportarCSV || (typeof exportarCSV !== 'undefined' ? exportarCSV : null);
+  window.exportarPDF_recorrida = window.exportarPDF_recorrida || (typeof exportarPDF_recorrida !== 'undefined' ? exportarPDF_recorrida : null);
+  window.copiarScript = window.copiarScript || (typeof copiarScript !== 'undefined' ? copiarScript : null);
+  window.addZonaConfig = window.addZonaConfig || (typeof addZonaConfig !== 'undefined' ? addZonaConfig : null);
+  window.guardarConfig = window.guardarConfig || (typeof guardarConfig !== 'undefined' ? guardarConfig : null);
+  window.filterZona = window.filterZona || (typeof filterZona !== 'undefined' ? filterZona : null);
+  window.toggleFalla = window.toggleFalla || (typeof toggleFalla !== 'undefined' ? toggleFalla : null);
+  window.addCircuito = window.addCircuito || (typeof addCircuito !== 'undefined' ? addCircuito : null);
+  window.addTablero = window.addTablero || (typeof addTablero !== 'undefined' ? addTablero : null);
+  window.removeZona = window.removeZona || (typeof removeZona !== 'undefined' ? removeZona : null);
+  window.removeCircuito = window.removeCircuito || (typeof removeCircuito !== 'undefined' ? removeCircuito : null);
+  window.removeTablero = window.removeTablero || (typeof removeTablero !== 'undefined' ? removeTablero : null);
+  window.toggleZona = window.toggleZona || (typeof toggleZona !== 'undefined' ? toggleZona : null);
+  window.toggleTablero = window.toggleTablero || (typeof toggleTablero !== 'undefined' ? toggleTablero : null);
+  window.toggleObs = window.toggleObs || (typeof toggleObs !== 'undefined' ? toggleObs : null);
+  window.setObs = window.setObs || (typeof setObs !== 'undefined' ? setObs : null);
+window.addEventListener('load', init);
+
+  return { init, _initialized: false };
+})();
+
+
+// ── Tab bridges (called from HTML onclick) ──
+function GE_showTab(t) { GE_showTabFn(t); }
+function LP_showTab(t)  { LP_showTabFn(t); }
+// ── PWA ──
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE='avp-v2';
+    self.addEventListener('install',e=>{self.skipWaiting();});
+    self.addEventListener('activate',e=>{self.clients.claim();});
+    self.addEventListener('fetch',e=>{
+      e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('',{status:503}))));
+    });
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+// ── Init home on load ──
+window.addEventListener('load', () => {
+  const now = new Date();
+  document.getElementById('hdr-date').textContent =
+    '📅 ' + now.toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const techInput = document.getElementById('tecnico-home');
+  techInput.value = localStorage.getItem('avp_tecnico') || '';
+  techInput.addEventListener('input', () => localStorage.setItem('avp_tecnico', techInput.value.trim()));
+});
+</script>
+</body>
+</html>
